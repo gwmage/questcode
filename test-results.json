@@ -1,0 +1,1240 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\fbrms\\questcode\\playwright.config.ts",
+    "rootDir": "C:/Users/fbrms/questcode/tests/generated",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 8
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/fbrms/questcode/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 8
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/fbrms/questcode/tests/generated",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.53.1",
+    "workers": 8,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "test-0-_.spec.ts",
+      "file": "test-0-_.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "홈",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 24548,
+                  "error": {
+                    "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '홈' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '홈' })\u001b[22m\n",
+                    "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '홈' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '홈' })\u001b[22m\n\n    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-0-_.spec.ts:83:25",
+                    "location": {
+                      "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-0-_.spec.ts",
+                      "column": 25,
+                      "line": 83
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'홈'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'홈'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-0-_.spec.ts",
+                        "column": 25,
+                        "line": 83
+                      },
+                      "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '홈' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '홈' })\u001b[22m\n\n\n\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'홈'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'홈'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-0-_.spec.ts:83:25\u001b[22m"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "\n>> Requesting: GET https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854948603&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854938206&coo=false&exp=k2&rqm=GET\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"www.facebook.com\",\n  \":method\": \"GET\",\n  \":path\": \"/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854948603&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854938206&coo=false&exp=k2&rqm=GET\",\n  \":scheme\": \"https\",\n  \"accept\": \"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"priority\": \"i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"image\",\n  \"sec-fetch-mode\": \"no-cors\",\n  \"sec-fetch-site\": \"cross-site\",\n  \"sec-fetch-storage-access\": \"active\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854948603&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854938206&coo=false&exp=k2&rqm=GET\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: ...\n"
+                    },
+                    {
+                      "text": "\n>> Requesting: POST https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/session?code=general\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"36982eeb308b4fadac8074bb09b1b7ea\",\"expires\":1750855850559,\"code\":\"general\"}...\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"api.eposo.ai\",\n  \":method\": \"POST\",\n  \":path\": \"/v1/auth/login/general\",\n  \":scheme\": \"https\",\n  \"accept\": \"application/json, text/plain, */*\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"authorization\": \"36982eeb308b4fadac8074bb09b1b7ea\",\n  \"content-length\": \"331\",\n  \"content-type\": \"application/json;charset=UTF-8\",\n  \"origin\": \"https://eposo.ai\",\n  \"priority\": \"u=1, i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"empty\",\n  \"sec-fetch-mode\": \"cors\",\n  \"sec-fetch-site\": \"same-site\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "<< Status: 201\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"cd69f2a520c14a5f8358f61d6c500fc0c698953e036b4ba6bae1e9cc9b50151eed6983e3ed984d49a8b60021aebc08f310e818f0b84741f9b05276bd2c5d68c7\",\"refresh\":\"18b7634220974e1ca7bba83f973b87de399b80622947458a945e29f87ff74ce8e2302df2284d44dc93c61fb49d34e5212617aa9a3dc94677a44f80ff2d8f0a01\",\"expires\":1750858550655,\"code\":\"token\",\"memberIdx\":10}...\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-25T12:35:30.414Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\fbrms\\questcode\\test-results\\test-0-_-홈-chromium\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-0-_.spec.ts",
+                    "column": 25,
+                    "line": 83
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "57b4803a2977c8cf5007-db8530ee0511b40d1bc8",
+          "file": "test-0-_.spec.ts",
+          "line": 81,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "test-1-____.spec.ts",
+      "file": "test-1-____.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "대시보드",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "failed",
+                  "duration": 22707,
+                  "error": {
+                    "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '대시보드' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '대시보드' })\u001b[22m\n",
+                    "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '대시보드' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '대시보드' })\u001b[22m\n\n    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-1-____.spec.ts:83:25",
+                    "location": {
+                      "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-1-____.spec.ts",
+                      "column": 25,
+                      "line": 83
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'대시보드'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'대시보드'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-1-____.spec.ts",
+                        "column": 25,
+                        "line": 83
+                      },
+                      "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '대시보드' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '대시보드' })\u001b[22m\n\n\n\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'대시보드'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'대시보드'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-1-____.spec.ts:83:25\u001b[22m"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "\n>> Requesting: GET https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854946648&sw=1280&sh=720&v=2.9.210&r=stable&ec=2&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854938537&coo=false&exp=k2&rqm=GET\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"www.facebook.com\",\n  \":method\": \"GET\",\n  \":path\": \"/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854946648&sw=1280&sh=720&v=2.9.210&r=stable&ec=2&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854938537&coo=false&exp=k2&rqm=GET\",\n  \":scheme\": \"https\",\n  \"accept\": \"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"priority\": \"i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"image\",\n  \"sec-fetch-mode\": \"no-cors\",\n  \"sec-fetch-site\": \"cross-site\",\n  \"sec-fetch-storage-access\": \"active\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854946648&sw=1280&sh=720&v=2.9.210&r=stable&ec=2&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854938537&coo=false&exp=k2&rqm=GET\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: ...\n"
+                    },
+                    {
+                      "text": "\n>> Requesting: POST https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/session?code=general\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"8acdafa7add5459895d186760ca0fe83\",\"expires\":1750855848863,\"code\":\"general\"}...\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"api.eposo.ai\",\n  \":method\": \"POST\",\n  \":path\": \"/v1/auth/login/general\",\n  \":scheme\": \"https\",\n  \"accept\": \"application/json, text/plain, */*\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"authorization\": \"8acdafa7add5459895d186760ca0fe83\",\n  \"content-length\": \"331\",\n  \"content-type\": \"application/json;charset=UTF-8\",\n  \"origin\": \"https://eposo.ai\",\n  \"priority\": \"u=1, i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"empty\",\n  \"sec-fetch-mode\": \"cors\",\n  \"sec-fetch-site\": \"same-site\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "<< Status: 201\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"0cf530ee0644453b8369d60c92507cf552039fe01e634918a59ca2ebdc85c12dbc2c12e9f6f94a9fb47f119d122718475b522b91fd6346ddbcc2a5baeee4d441\",\"refresh\":\"fb00123a940946559d3b79e3eef9b04cda1970dd34c04d8e9471ab3d7993f4849b6510178a7d4019a57d79a8b0167b522b46ff932be74f95aa329bcfab33d412\",\"expires\":1750858548968,\"code\":\"token\",\"memberIdx\":10}...\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-25T12:35:30.466Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\fbrms\\questcode\\test-results\\test-1-____-대시보드-chromium\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-1-____.spec.ts",
+                    "column": 25,
+                    "line": 83
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2bf21f44dbae446e3224-d2074a616fb2d71c3c74",
+          "file": "test-1-____.spec.ts",
+          "line": 81,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "test-10-_______________.spec.ts",
+      "file": "test-10-_______________.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "무료로 프로젝트 만들러 가기",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 2,
+                  "status": "failed",
+                  "duration": 19398,
+                  "error": {
+                    "message": "Error: expect.toBeVisible: Error: strict mode violation: getByRole('button', { name: '무료로 프로젝트 만들러 가기' }) resolved to 2 elements:\n    1) <button class=\"randing-page__btn\">무료로 프로젝트 만들러 가기</button> aka getByRole('button', { name: '무료로 프로젝트 만들러 가기' }).first()\n    2) <button class=\"randing-page__btn\">무료로 프로젝트 만들러 가기</button> aka getByRole('button', { name: '무료로 프로젝트 만들러 가기' }).nth(1)\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: '무료로 프로젝트 만들러 가기' })\u001b[22m\n",
+                    "stack": "Error: expect.toBeVisible: Error: strict mode violation: getByRole('button', { name: '무료로 프로젝트 만들러 가기' }) resolved to 2 elements:\n    1) <button class=\"randing-page__btn\">무료로 프로젝트 만들러 가기</button> aka getByRole('button', { name: '무료로 프로젝트 만들러 가기' }).first()\n    2) <button class=\"randing-page__btn\">무료로 프로젝트 만들러 가기</button> aka getByRole('button', { name: '무료로 프로젝트 만들러 가기' }).nth(1)\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: '무료로 프로젝트 만들러 가기' })\u001b[22m\n\n    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-10-_______________.spec.ts:83:25",
+                    "location": {
+                      "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-10-_______________.spec.ts",
+                      "column": 25,
+                      "line": 83
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'무료로 프로젝트 만들러 가기'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'무료로 프로젝트 만들러 가기'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-10-_______________.spec.ts",
+                        "column": 25,
+                        "line": 83
+                      },
+                      "message": "Error: expect.toBeVisible: Error: strict mode violation: getByRole('button', { name: '무료로 프로젝트 만들러 가기' }) resolved to 2 elements:\n    1) <button class=\"randing-page__btn\">무료로 프로젝트 만들러 가기</button> aka getByRole('button', { name: '무료로 프로젝트 만들러 가기' }).first()\n    2) <button class=\"randing-page__btn\">무료로 프로젝트 만들러 가기</button> aka getByRole('button', { name: '무료로 프로젝트 만들러 가기' }).nth(1)\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: '무료로 프로젝트 만들러 가기' })\u001b[22m\n\n\n\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'무료로 프로젝트 만들러 가기'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'무료로 프로젝트 만들러 가기'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-10-_______________.spec.ts:83:25\u001b[22m"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "\n>> Requesting: GET https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854948741&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854937821&coo=false&exp=k2&rqm=GET\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"www.facebook.com\",\n  \":method\": \"GET\",\n  \":path\": \"/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854948741&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854937821&coo=false&exp=k2&rqm=GET\",\n  \":scheme\": \"https\",\n  \"accept\": \"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"priority\": \"i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"image\",\n  \"sec-fetch-mode\": \"no-cors\",\n  \"sec-fetch-site\": \"cross-site\",\n  \"sec-fetch-storage-access\": \"active\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854948741&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854937821&coo=false&exp=k2&rqm=GET\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: ...\n"
+                    },
+                    {
+                      "text": "\n>> Requesting: POST https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/session?code=general\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"d7403eff10964e2fbecbab65f34059d9\",\"expires\":1750855850784,\"code\":\"general\"}...\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"api.eposo.ai\",\n  \":method\": \"POST\",\n  \":path\": \"/v1/auth/login/general\",\n  \":scheme\": \"https\",\n  \"accept\": \"application/json, text/plain, */*\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"authorization\": \"d7403eff10964e2fbecbab65f34059d9\",\n  \"content-length\": \"331\",\n  \"content-type\": \"application/json;charset=UTF-8\",\n  \"origin\": \"https://eposo.ai\",\n  \"priority\": \"u=1, i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"empty\",\n  \"sec-fetch-mode\": \"cors\",\n  \"sec-fetch-site\": \"same-site\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "<< Status: 201\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"9b858f1abe784cef8161b8f7b436232dba38d1ddce134ff59d2d2fd7a18afe76b4d40e0c32154f768d845076272798fcf594eeeae9aa4dc29b03f9cefa067510\",\"refresh\":\"9d2ebf4c3fcc43bb8b2ba2c2f4e3b3f3a6fa6ce2ef83459c8dbc8e5d770e68a56f5404123c834f1395ebceb4892dc78c027474ac0be0446aa2d10ebc8c6d86d4\",\"expires\":1750858550889,\"code\":\"token\",\"memberIdx\":10}...\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-25T12:35:30.471Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\fbrms\\questcode\\test-results\\test-10-_______________-무료로-프로젝트-만들러-가기-chromium\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-10-_______________.spec.ts",
+                    "column": 25,
+                    "line": 83
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "35fb741e72cf2e95e49e-9e235f08e1c58b909dfe",
+          "file": "test-10-_______________.spec.ts",
+          "line": 81,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "test-2-__.spec.ts",
+      "file": "test-2-__.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "에픽",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 3,
+                  "status": "failed",
+                  "duration": 24603,
+                  "error": {
+                    "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '에픽' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '에픽' })\u001b[22m\n",
+                    "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '에픽' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '에픽' })\u001b[22m\n\n    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-2-__.spec.ts:83:25",
+                    "location": {
+                      "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-2-__.spec.ts",
+                      "column": 25,
+                      "line": 83
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'에픽'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'에픽'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-2-__.spec.ts",
+                        "column": 25,
+                        "line": 83
+                      },
+                      "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '에픽' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '에픽' })\u001b[22m\n\n\n\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'에픽'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'에픽'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-2-__.spec.ts:83:25\u001b[22m"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "\n>> Requesting: GET https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854948952&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854937871&coo=false&exp=k2&rqm=GET\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"www.facebook.com\",\n  \":method\": \"GET\",\n  \":path\": \"/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854948952&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854937871&coo=false&exp=k2&rqm=GET\",\n  \":scheme\": \"https\",\n  \"accept\": \"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"priority\": \"i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"image\",\n  \"sec-fetch-mode\": \"no-cors\",\n  \"sec-fetch-site\": \"cross-site\",\n  \"sec-fetch-storage-access\": \"active\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854948952&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854937871&coo=false&exp=k2&rqm=GET\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: ...\n"
+                    },
+                    {
+                      "text": "\n>> Requesting: POST https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/session?code=general\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"7f7a93778c874509b2a8c7d63a859ee7\",\"expires\":1750855851141,\"code\":\"general\"}...\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"api.eposo.ai\",\n  \":method\": \"POST\",\n  \":path\": \"/v1/auth/login/general\",\n  \":scheme\": \"https\",\n  \"accept\": \"application/json, text/plain, */*\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"authorization\": \"7f7a93778c874509b2a8c7d63a859ee7\",\n  \"content-length\": \"331\",\n  \"content-type\": \"application/json;charset=UTF-8\",\n  \"origin\": \"https://eposo.ai\",\n  \"priority\": \"u=1, i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"empty\",\n  \"sec-fetch-mode\": \"cors\",\n  \"sec-fetch-site\": \"same-site\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "<< Status: 201\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"1e91c34662b64ca1a2b84f172803bcca33adf321a0b043b79e91f00e7eda87452b66db6689d34a109392ee57f2f1b1f6a69119ac15dc475581250f693e5c4b09\",\"refresh\":\"382b923f18e84fe9b05c1cc3a38207587989de0d956744638a1f141c8e3b9853482201d8f5164b92b519308efff24374a49c909a48564b74944f15f153dec34d\",\"expires\":1750858551308,\"code\":\"token\",\"memberIdx\":10}...\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-25T12:35:30.662Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\fbrms\\questcode\\test-results\\test-2-__-에픽-chromium\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-2-__.spec.ts",
+                    "column": 25,
+                    "line": 83
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8e90e2ecafc2df7bcfb7-a8de6707de9f783fc821",
+          "file": "test-2-__.spec.ts",
+          "line": 81,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "test-3-__.spec.ts",
+      "file": "test-3-__.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "일정",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 4,
+                  "status": "failed",
+                  "duration": 24614,
+                  "error": {
+                    "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '일정' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '일정' })\u001b[22m\n",
+                    "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '일정' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '일정' })\u001b[22m\n\n    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-3-__.spec.ts:83:25",
+                    "location": {
+                      "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-3-__.spec.ts",
+                      "column": 25,
+                      "line": 83
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'일정'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'일정'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-3-__.spec.ts",
+                        "column": 25,
+                        "line": 83
+                      },
+                      "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '일정' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '일정' })\u001b[22m\n\n\n\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'일정'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'일정'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-3-__.spec.ts:83:25\u001b[22m"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "\n>> Requesting: GET https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854948891&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854937861&coo=false&exp=q1&rqm=GET\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"www.facebook.com\",\n  \":method\": \"GET\",\n  \":path\": \"/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854948891&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854937861&coo=false&exp=q1&rqm=GET\",\n  \":scheme\": \"https\",\n  \"accept\": \"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"priority\": \"i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"image\",\n  \"sec-fetch-mode\": \"no-cors\",\n  \"sec-fetch-site\": \"cross-site\",\n  \"sec-fetch-storage-access\": \"active\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854948891&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854937861&coo=false&exp=q1&rqm=GET\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: ...\n"
+                    },
+                    {
+                      "text": "\n>> Requesting: POST https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/session?code=general\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"fc13db4f099f4ef7adfe4ad73cea9abd\",\"expires\":1750855851098,\"code\":\"general\"}...\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"api.eposo.ai\",\n  \":method\": \"POST\",\n  \":path\": \"/v1/auth/login/general\",\n  \":scheme\": \"https\",\n  \"accept\": \"application/json, text/plain, */*\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"authorization\": \"fc13db4f099f4ef7adfe4ad73cea9abd\",\n  \"content-length\": \"331\",\n  \"content-type\": \"application/json;charset=UTF-8\",\n  \"origin\": \"https://eposo.ai\",\n  \"priority\": \"u=1, i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"empty\",\n  \"sec-fetch-mode\": \"cors\",\n  \"sec-fetch-site\": \"same-site\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "<< Status: 201\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"9f27a8adfe62454fb997769611dd3de148d57279ba614bc78682163a5c6d132fc8a08c03461f462bbbd0302470a8f08acfe3598e1c2443eaa221d9ab934cd485\",\"refresh\":\"07ac927c626f4e63a59ccfd002a02026854bc7cc4271414f869cadd8ffcbf1fa54ae223052f9416ab0caff39117bac0530e674ebb60540f39fef75dfffbd8d82\",\"expires\":1750858551293,\"code\":\"token\",\"memberIdx\":10}...\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-25T12:35:30.588Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\fbrms\\questcode\\test-results\\test-3-__-일정-chromium\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-3-__.spec.ts",
+                    "column": 25,
+                    "line": 83
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ba9d17f8f8e0ee8a6e6-81d2d0b0976787e0813d",
+          "file": "test-3-__.spec.ts",
+          "line": 81,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "test-4-__.spec.ts",
+      "file": "test-4-__.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "정산",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 5,
+                  "status": "failed",
+                  "duration": 24032,
+                  "error": {
+                    "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '정산' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '정산' })\u001b[22m\n",
+                    "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '정산' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '정산' })\u001b[22m\n\n    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-4-__.spec.ts:83:25",
+                    "location": {
+                      "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-4-__.spec.ts",
+                      "column": 25,
+                      "line": 83
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'정산'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'정산'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-4-__.spec.ts",
+                        "column": 25,
+                        "line": 83
+                      },
+                      "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '정산' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '정산' })\u001b[22m\n\n\n\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'정산'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'정산'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-4-__.spec.ts:83:25\u001b[22m"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "\n>> Requesting: GET https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854948498&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854938024&coo=false&exp=k2&rqm=GET\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"www.facebook.com\",\n  \":method\": \"GET\",\n  \":path\": \"/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854948498&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854938024&coo=false&exp=k2&rqm=GET\",\n  \":scheme\": \"https\",\n  \"accept\": \"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"priority\": \"i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"image\",\n  \"sec-fetch-mode\": \"no-cors\",\n  \"sec-fetch-site\": \"cross-site\",\n  \"sec-fetch-storage-access\": \"active\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854948498&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854938024&coo=false&exp=k2&rqm=GET\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: ...\n"
+                    },
+                    {
+                      "text": "\n>> Requesting: POST https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/session?code=general\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"c8b5f2c166af4a9f95dfb36d010a3899\",\"expires\":1750855850498,\"code\":\"general\"}...\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"api.eposo.ai\",\n  \":method\": \"POST\",\n  \":path\": \"/v1/auth/login/general\",\n  \":scheme\": \"https\",\n  \"accept\": \"application/json, text/plain, */*\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"authorization\": \"c8b5f2c166af4a9f95dfb36d010a3899\",\n  \"content-length\": \"331\",\n  \"content-type\": \"application/json;charset=UTF-8\",\n  \"origin\": \"https://eposo.ai\",\n  \"priority\": \"u=1, i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"empty\",\n  \"sec-fetch-mode\": \"cors\",\n  \"sec-fetch-site\": \"same-site\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "<< Status: 201\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"4b7d2997af434f4d9b10316331a247543d0f98c07dde47a2b64b0ad7d1d94018f8ffa42e93a244d59468ae399c058b871a66ad4c393349f1a8638ac5c1168da5\",\"refresh\":\"bcd921c55d28427aaddf8e45bb9e8abf6d303c9113ad4b699e177377fc5bb9a7be819425825442d28cf330b0be73f914112abb86070b41edad5d7d4244e29bf5\",\"expires\":1750858550601,\"code\":\"token\",\"memberIdx\":10}...\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-25T12:35:30.528Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\fbrms\\questcode\\test-results\\test-4-__-정산-chromium\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-4-__.spec.ts",
+                    "column": 25,
+                    "line": 83
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "10a2b2feb4650e34b6c0-4005423aa00bea37b1e5",
+          "file": "test-4-__.spec.ts",
+          "line": 81,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "test-5-__.spec.ts",
+      "file": "test-5-__.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "문서",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 6,
+                  "status": "failed",
+                  "duration": 22869,
+                  "error": {
+                    "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '문서' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '문서' })\u001b[22m\n",
+                    "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '문서' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '문서' })\u001b[22m\n\n    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-5-__.spec.ts:83:25",
+                    "location": {
+                      "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-5-__.spec.ts",
+                      "column": 25,
+                      "line": 83
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'문서'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'문서'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-5-__.spec.ts",
+                        "column": 25,
+                        "line": 83
+                      },
+                      "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '문서' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '문서' })\u001b[22m\n\n\n\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'문서'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'문서'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-5-__.spec.ts:83:25\u001b[22m"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "\n>> Requesting: GET https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854947405&sw=1280&sh=720&v=2.9.210&r=stable&ec=2&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854938626&coo=false&exp=k2&rqm=GET\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"www.facebook.com\",\n  \":method\": \"GET\",\n  \":path\": \"/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854947405&sw=1280&sh=720&v=2.9.210&r=stable&ec=2&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854938626&coo=false&exp=k2&rqm=GET\",\n  \":scheme\": \"https\",\n  \"accept\": \"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"priority\": \"i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"image\",\n  \"sec-fetch-mode\": \"no-cors\",\n  \"sec-fetch-site\": \"cross-site\",\n  \"sec-fetch-storage-access\": \"active\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854947405&sw=1280&sh=720&v=2.9.210&r=stable&ec=2&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854938626&coo=false&exp=k2&rqm=GET\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: ...\n"
+                    },
+                    {
+                      "text": "\n>> Requesting: POST https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/session?code=general\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"daf5c954a4304ea693d3a5d30ac1557c\",\"expires\":1750855849355,\"code\":\"general\"}...\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"api.eposo.ai\",\n  \":method\": \"POST\",\n  \":path\": \"/v1/auth/login/general\",\n  \":scheme\": \"https\",\n  \"accept\": \"application/json, text/plain, */*\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"authorization\": \"daf5c954a4304ea693d3a5d30ac1557c\",\n  \"content-length\": \"331\",\n  \"content-type\": \"application/json;charset=UTF-8\",\n  \"origin\": \"https://eposo.ai\",\n  \"priority\": \"u=1, i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"empty\",\n  \"sec-fetch-mode\": \"cors\",\n  \"sec-fetch-site\": \"same-site\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "<< Status: 201\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"51aa436260904009bf2e621dd29c535ab386633c962c4737b080c7aaf33cac6fddd49df43409492198c58754b2540977f022e2c190044c74b9e203a86956efd6\",\"refresh\":\"bb758e23bdcd45678f24bd595aee1977bd2c02ed39fc43c4bfd79b685d58a03957fb15f9e1a84270933b7d5b39fbee08e99614f5f42f4bfe8a23a9d71ce828bf\",\"expires\":1750858549468,\"code\":\"token\",\"memberIdx\":10}...\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-25T12:35:30.567Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\fbrms\\questcode\\test-results\\test-5-__-문서-chromium\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-5-__.spec.ts",
+                    "column": 25,
+                    "line": 83
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "949a7b8e1165fc1ba00a-60c5cf130b694385bba4",
+          "file": "test-5-__.spec.ts",
+          "line": 81,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "test-6-__.spec.ts",
+      "file": "test-6-__.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "환경",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 7,
+                  "status": "failed",
+                  "duration": 23007,
+                  "error": {
+                    "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '환경' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '환경' })\u001b[22m\n",
+                    "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '환경' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '환경' })\u001b[22m\n\n    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-6-__.spec.ts:83:25",
+                    "location": {
+                      "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-6-__.spec.ts",
+                      "column": 25,
+                      "line": 83
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'환경'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'환경'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-6-__.spec.ts",
+                        "column": 25,
+                        "line": 83
+                      },
+                      "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByRole('link', { name: '환경' })\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '환경' })\u001b[22m\n\n\n\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'환경'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'환경'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-6-__.spec.ts:83:25\u001b[22m"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "\n>> Requesting: GET https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854947440&sw=1280&sh=720&v=2.9.210&r=stable&ec=2&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854938632&coo=false&exp=q1&rqm=GET\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"www.facebook.com\",\n  \":method\": \"GET\",\n  \":path\": \"/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854947440&sw=1280&sh=720&v=2.9.210&r=stable&ec=2&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854938632&coo=false&exp=q1&rqm=GET\",\n  \":scheme\": \"https\",\n  \"accept\": \"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"priority\": \"i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"image\",\n  \"sec-fetch-mode\": \"no-cors\",\n  \"sec-fetch-site\": \"cross-site\",\n  \"sec-fetch-storage-access\": \"active\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854947440&sw=1280&sh=720&v=2.9.210&r=stable&ec=2&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854938632&coo=false&exp=q1&rqm=GET\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: ...\n"
+                    },
+                    {
+                      "text": "\n>> Requesting: POST https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/session?code=general\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"8de97175e1b747c5b7e45ca286e430a5\",\"expires\":1750855849398,\"code\":\"general\"}...\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"api.eposo.ai\",\n  \":method\": \"POST\",\n  \":path\": \"/v1/auth/login/general\",\n  \":scheme\": \"https\",\n  \"accept\": \"application/json, text/plain, */*\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"authorization\": \"8de97175e1b747c5b7e45ca286e430a5\",\n  \"content-length\": \"331\",\n  \"content-type\": \"application/json;charset=UTF-8\",\n  \"origin\": \"https://eposo.ai\",\n  \"priority\": \"u=1, i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"empty\",\n  \"sec-fetch-mode\": \"cors\",\n  \"sec-fetch-site\": \"same-site\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "<< Status: 201\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"a44ab2216aac4375a5c3b0530eb4aeea2b531274d24444e8b3a12e22dbae89a60ac5b015009d43d297e17bff2cd9fa6215bb1526ac3a411888564cef44f6244a\",\"refresh\":\"e6387d01c97549fda2259a4f7e8e50a76cb89fcaad7c418c97d0adaf8c560282c40c47bf803c430bae96aa0382211ed547226e5b399940899ae95154a7b5904d\",\"expires\":1750858549498,\"code\":\"token\",\"memberIdx\":10}...\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-25T12:35:30.653Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\fbrms\\questcode\\test-results\\test-6-__-환경-chromium\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-6-__.spec.ts",
+                    "column": 25,
+                    "line": 83
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "765f021eec441fd522a7-9ea6c32313760dc1a730",
+          "file": "test-6-__.spec.ts",
+          "line": 81,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "test-7-element_7.spec.ts",
+      "file": "test-7-element_7.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "element-7",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 2,
+                  "status": "failed",
+                  "duration": 6593,
+                  "error": {
+                    "message": "Error: expect.toBeVisible: Error: strict mode violation: getByRole('button') resolved to 7 elements:\n    1) <button>…</button> aka getByRole('button', { name: 'EPOSO' })\n    2) <button type=\"button\" class=\"c-button ↵      c-button--large↵      c-button--outline↵      c-button--round↵      c-button--center↵      c-button--center ↵      false login-page__sns\">…</button> aka getByRole('button', { name: 'google Google Login / Easy' })\n    3) <button type=\"button\">…</button> aka locator('div').filter({ hasText: /^Email ID$/ }).getByRole('button')\n    4) <button type=\"button\">…</button> aka locator('div').filter({ hasText: /^Password$/ }).getByRole('button')\n    5) <button type=\"button\" class=\"c-button ↵      c-button--large↵      c-button--green↵      c-button--round↵      c-button--center↵      c-button--center ↵      false\">Email Login</button> aka getByRole('button', { name: 'Email Login' })\n    6) <button type=\"button\" class=\"login-page__txt-btn\">Sign Up</button> aka getByRole('button', { name: 'Sign Up', exact: true })\n    7) <button type=\"button\" class=\"login-page__txt-btn\">Find Account</button> aka getByRole('button', { name: 'Find Account' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button')\u001b[22m\n",
+                    "stack": "Error: expect.toBeVisible: Error: strict mode violation: getByRole('button') resolved to 7 elements:\n    1) <button>…</button> aka getByRole('button', { name: 'EPOSO' })\n    2) <button type=\"button\" class=\"c-button ↵      c-button--large↵      c-button--outline↵      c-button--round↵      c-button--center↵      c-button--center ↵      false login-page__sns\">…</button> aka getByRole('button', { name: 'google Google Login / Easy' })\n    3) <button type=\"button\">…</button> aka locator('div').filter({ hasText: /^Email ID$/ }).getByRole('button')\n    4) <button type=\"button\">…</button> aka locator('div').filter({ hasText: /^Password$/ }).getByRole('button')\n    5) <button type=\"button\" class=\"c-button ↵      c-button--large↵      c-button--green↵      c-button--round↵      c-button--center↵      c-button--center ↵      false\">Email Login</button> aka getByRole('button', { name: 'Email Login' })\n    6) <button type=\"button\" class=\"login-page__txt-btn\">Sign Up</button> aka getByRole('button', { name: 'Sign Up', exact: true })\n    7) <button type=\"button\" class=\"login-page__txt-btn\">Find Account</button> aka getByRole('button', { name: 'Find Account' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button')\u001b[22m\n\n    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-7-element_7.spec.ts:83:25",
+                    "location": {
+                      "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-7-element_7.spec.ts",
+                      "column": 25,
+                      "line": 83
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'element-7'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-7-element_7.spec.ts",
+                        "column": 25,
+                        "line": 83
+                      },
+                      "message": "Error: expect.toBeVisible: Error: strict mode violation: getByRole('button') resolved to 7 elements:\n    1) <button>…</button> aka getByRole('button', { name: 'EPOSO' })\n    2) <button type=\"button\" class=\"c-button ↵      c-button--large↵      c-button--outline↵      c-button--round↵      c-button--center↵      c-button--center ↵      false login-page__sns\">…</button> aka getByRole('button', { name: 'google Google Login / Easy' })\n    3) <button type=\"button\">…</button> aka locator('div').filter({ hasText: /^Email ID$/ }).getByRole('button')\n    4) <button type=\"button\">…</button> aka locator('div').filter({ hasText: /^Password$/ }).getByRole('button')\n    5) <button type=\"button\" class=\"c-button ↵      c-button--large↵      c-button--green↵      c-button--round↵      c-button--center↵      c-button--center ↵      false\">Email Login</button> aka getByRole('button', { name: 'Email Login' })\n    6) <button type=\"button\" class=\"login-page__txt-btn\">Sign Up</button> aka getByRole('button', { name: 'Sign Up', exact: true })\n    7) <button type=\"button\" class=\"login-page__txt-btn\">Find Account</button> aka getByRole('button', { name: 'Find Account' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button')\u001b[22m\n\n\n\u001b[0m \u001b[90m 81 |\u001b[39m test(\u001b[32m'element-7'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 82 |\u001b[39m   \u001b[36mconst\u001b[39m locator \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m   \u001b[36mawait\u001b[39m expect(locator)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m   \u001b[36mawait\u001b[39m locator\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\fbrms\\questcode\\tests\\generated\\test-7-element_7.spec.ts:83:25\u001b[22m"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-7-element_7.spec.ts",
+                        "column": 37,
+                        "line": 12
+                      },
+                      "message": "Error: request.allHeaders: Test ended.\n\n\u001b[0m \u001b[90m 10 |\u001b[39m       console\u001b[33m.\u001b[39mlog(\u001b[32m`\u001b[39m\n \u001b[90m 11 |\u001b[39m \u001b[32m>> Requesting: ${request.method()} ${request.url()}`\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 12 |\u001b[39m       \u001b[36mconst\u001b[39m headers \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m request\u001b[33m.\u001b[39mallHeaders()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 13 |\u001b[39m       console\u001b[33m.\u001b[39mlog(\u001b[32m`>> Headers: ${JSON.stringify(headers, null, 2)}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 14 |\u001b[39m     }\n \u001b[90m 15 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at Page.<anonymous> (C:\\Users\\fbrms\\questcode\\tests\\generated\\test-7-element_7.spec.ts:12:37)\u001b[22m"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "\n>> Requesting: GET https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854957382&sw=1280&sh=720&v=next&r=canary&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854954345&coo=false&uppt=0&uvpt=0.09999990463256836&ttf=3427.600000143051&bdt=145.30000019073486&bdsize=303600&btsize=77787&brbs=0&cdt=332.7000000476837&cdsize=63890&ctsize=12758&crbs=0&let=37.5&rqm=GET\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"www.facebook.com\",\n  \":method\": \"GET\",\n  \":path\": \"/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854957382&sw=1280&sh=720&v=next&r=canary&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854954345&coo=false&uppt=0&uvpt=0.09999990463256836&ttf=3427.600000143051&bdt=145.30000019073486&bdsize=303600&btsize=77787&brbs=0&cdt=332.7000000476837&cdsize=63890&ctsize=12758&crbs=0&let=37.5&rqm=GET\",\n  \":scheme\": \"https\",\n  \"accept\": \"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"priority\": \"i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"image\",\n  \"sec-fetch-mode\": \"no-cors\",\n  \"sec-fetch-site\": \"cross-site\",\n  \"sec-fetch-storage-access\": \"active\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854957382&sw=1280&sh=720&v=next&r=canary&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854954345&coo=false&uppt=0&uvpt=0.09999990463256836&ttf=3427.600000143051&bdt=145.30000019073486&bdsize=303600&btsize=77787&brbs=0&cdt=332.7000000476837&cdsize=63890&ctsize=12758&crbs=0&let=37.5&rqm=GET\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: ...\n"
+                    },
+                    {
+                      "text": "\n>> Requesting: POST https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/session?code=general\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"c8333e27f2da4635a04397a94f33cbed\",\"expires\":1750855859770,\"code\":\"general\"}...\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-25T12:35:53.050Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\fbrms\\questcode\\test-results\\test-7-element_7-element-7-chromium\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\fbrms\\questcode\\tests\\generated\\test-7-element_7.spec.ts",
+                    "column": 25,
+                    "line": 83
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "a03068aa7641fc89bb19-b25a4b1752613b3a2b06",
+          "file": "test-7-element_7.spec.ts",
+          "line": 81,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "test-8-EPOSO.spec.ts",
+      "file": "test-8-EPOSO.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "EPOSO",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 5370,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "\n>> Requesting: GET https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854960020&sw=1280&sh=720&v=2.9.210&r=stable&ec=2&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854958413&coo=false&exp=p1&rqm=GET\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"www.facebook.com\",\n  \":method\": \"GET\",\n  \":path\": \"/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854960020&sw=1280&sh=720&v=2.9.210&r=stable&ec=2&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854958413&coo=false&exp=p1&rqm=GET\",\n  \":scheme\": \"https\",\n  \"accept\": \"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"priority\": \"i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"image\",\n  \"sec-fetch-mode\": \"no-cors\",\n  \"sec-fetch-site\": \"cross-site\",\n  \"sec-fetch-storage-access\": \"active\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854960020&sw=1280&sh=720&v=2.9.210&r=stable&ec=2&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854958413&coo=false&exp=p1&rqm=GET\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: ...\n"
+                    },
+                    {
+                      "text": "\n>> Requesting: POST https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/session?code=general\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"ae851f77c88343e8bdc301b2b49a914e\",\"expires\":1750855862204,\"code\":\"general\"}...\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"api.eposo.ai\",\n  \":method\": \"POST\",\n  \":path\": \"/v1/auth/login/general\",\n  \":scheme\": \"https\",\n  \"accept\": \"application/json, text/plain, */*\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"authorization\": \"ae851f77c88343e8bdc301b2b49a914e\",\n  \"content-length\": \"331\",\n  \"content-type\": \"application/json;charset=UTF-8\",\n  \"origin\": \"https://eposo.ai\",\n  \"priority\": \"u=1, i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"empty\",\n  \"sec-fetch-mode\": \"cors\",\n  \"sec-fetch-site\": \"same-site\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "<< Status: 201\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"e228bae8046146cd935741f9358b97b2cd58309040df449398dbdf1d26621bf29a4720641f3c456992fddfa10a0574070570f0644f5147359ce009a62e707e91\",\"refresh\":\"c1274bf3df764e74a63e1da123f5424a02a2b6c1ba6749e597ed21d57292f34870447863549a4166a9f46e3ce19e34bf3aed28d4881a4de384355da2aac26c55\",\"expires\":1750858562295,\"code\":\"token\",\"memberIdx\":10}...\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-25T12:35:56.434Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f45f2cf6e3495307399c-aee633a8c5cdc500c974",
+          "file": "test-8-EPOSO.spec.ts",
+          "line": 81,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "test-9-TTest.spec.ts",
+      "file": "test-9-TTest.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "TTest",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 6,
+                  "status": "passed",
+                  "duration": 6177,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "\n>> Requesting: GET https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854961645&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854959243&coo=false&exp=k2&rqm=GET\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"www.facebook.com\",\n  \":method\": \"GET\",\n  \":path\": \"/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854961645&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854959243&coo=false&exp=k2&rqm=GET\",\n  \":scheme\": \"https\",\n  \"accept\": \"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"priority\": \"i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"image\",\n  \"sec-fetch-mode\": \"no-cors\",\n  \"sec-fetch-site\": \"cross-site\",\n  \"sec-fetch-storage-access\": \"active\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://www.facebook.com/tr/?id=1355755609005814&ev=PageView&dl=https%3A%2F%2Feposo.ai%2F%23%2Flogin&rl=&if=false&ts=1750854961645&sw=1280&sh=720&v=2.9.210&r=stable&ec=3&o=4126&fbp=fb.1.1750828913278.697380280463027410&ler=empty&it=1750854959243&coo=false&exp=k2&rqm=GET\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: ...\n"
+                    },
+                    {
+                      "text": "\n>> Requesting: POST https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/session?code=general\n"
+                    },
+                    {
+                      "text": "<< Status: 200\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"085c6f9be9d1464ab062d1b2954ad165\",\"expires\":1750855863818,\"code\":\"general\"}...\n"
+                    },
+                    {
+                      "text": ">> Headers: {\n  \":authority\": \"api.eposo.ai\",\n  \":method\": \"POST\",\n  \":path\": \"/v1/auth/login/general\",\n  \":scheme\": \"https\",\n  \"accept\": \"application/json, text/plain, */*\",\n  \"accept-encoding\": \"gzip, deflate, br, zstd\",\n  \"accept-language\": \"en-US\",\n  \"authorization\": \"085c6f9be9d1464ab062d1b2954ad165\",\n  \"content-length\": \"331\",\n  \"content-type\": \"application/json;charset=UTF-8\",\n  \"origin\": \"https://eposo.ai\",\n  \"priority\": \"u=1, i\",\n  \"referer\": \"https://eposo.ai/\",\n  \"sec-ch-ua\": \"\\\"Not)A;Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"138\\\", \\\"HeadlessChrome\\\";v=\\\"138\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"Windows\\\"\",\n  \"sec-fetch-dest\": \"empty\",\n  \"sec-fetch-mode\": \"cors\",\n  \"sec-fetch-site\": \"same-site\",\n  \"user-agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.23 Safari/537.36\"\n}\n"
+                    },
+                    {
+                      "text": "\n<< Response from: https://api.eposo.ai/v1/auth/login/general\n"
+                    },
+                    {
+                      "text": "<< Status: 201\n"
+                    },
+                    {
+                      "text": "<< Body: {\"key\":\"59a485cb255449eb94245bd99b126dd170a74ce940ba4eccb811c386d06a2ec248d0362e926c4f30b71bb815a1307bab7de20bcf90f74e0985ac4f899dc7d8e6\",\"refresh\":\"553830a07d4a40608c626a150daef30a22bf08d6941f4395a755e216a516968a939ee10fe23c4364b198979c7ace257babe25df3430d44fca95ca7a191319f51\",\"expires\":1750858563911,\"code\":\"token\",\"memberIdx\":10}...\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-25T12:35:57.291Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dbfdd51fb577f26debd3-af1351aa929e540ba59a",
+          "file": "test-9-TTest.spec.ts",
+          "line": 81,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-06-25T12:35:27.357Z",
+    "duration": 37215.829,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 9,
+    "flaky": 0
+  }
+}

@@ -1,4 +1,4 @@
-node_modules
+node_modules/
 .env
 .env.local
 .env.development.local
@@ -7,5 +7,12 @@ node_modules
 .env.development
 .env.test
 .env.production
+.DS_Store
+# Playwright
+test-results/
+playwright-report/
+storageState.json
+tests/generated/
+test-context.md
 
 
