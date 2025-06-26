@@ -2,54 +2,5 @@
   "url": "https://eposo.ai",
   "title": "Root",
   "status": "unvisited",
-  "children": [
-    {
-      "url": "https://eposo.ai/#/dashboard/0",
-      "title": "TBD",
-      "status": "unvisited",
-      "children": []
-    },
-    {
-      "url": "https://eposo.ai/#/epic/0",
-      "title": "TBD",
-      "status": "unvisited",
-      "children": []
-    },
-    {
-      "url": "https://eposo.ai/#/timeline/0",
-      "title": "TBD",
-      "status": "unvisited",
-      "children": []
-    },
-    {
-      "url": "https://eposo.ai/#/calculate/expert/0",
-      "title": "TBD",
-      "status": "unvisited",
-      "children": []
-    },
-    {
-      "url": "https://eposo.ai/#/doclist/0",
-      "title": "TBD",
-      "status": "unvisited",
-      "children": []
-    },
-    {
-      "url": "https://eposo.ai/#/setting",
-      "title": "TBD",
-      "status": "unvisited",
-      "children": []
-    },
-    {
-      "url": "https://eposo.ai/#/join",
-      "title": "TBD",
-      "status": "unvisited",
-      "children": []
-    },
-    {
-      "url": "https://eposo.ai/#/find/password",
-      "title": "TBD",
-      "status": "unvisited",
-      "children": []
-    }
-  ]
+  "children": []
 }

@@ -37,14 +37,21 @@ interface ActionLogEntry {
   error?: string;
 }
 
-interface AiNavigationResponse {
-  decision: 'navigate' | 'execute_plan' | 'scenario_complete';
+interface AiPlanResponse {
   reasoning: string;
-  url?: string; // For 'navigate'
-  plan?: { // For 'execute_plan'
-    description: string;
-    actions: Action[];
-  }
+  plan: Action[];
+}
+
+interface AiVerificationResponse {
+  decision: 'continue' | 'replan' | 'fail';
+  reasoning: string;
+  new_plan?: Action[]; // only for 'replan'
+}
+
+interface AiActionResponse {
+  decision: 'act' | 'finish';
+  reasoning: string;
+  action?: Action;
 }
 
 async function main() {
@@ -105,83 +112,73 @@ async function main() {
       currentScenario.status = 'in-progress';
       console.log(`\n\n🎯 새로운 시나리오 시작: "${currentScenario.instruction}"`);
       
-      let attemptsForScenario = 0;
-      let maxAttemptsForScenario = 20; // Max 20 steps (pages or plans) per scenario
-  
-      while(attemptsForScenario < maxAttemptsForScenario && currentScenario.status === 'in-progress') {
-        attemptsForScenario++;
-        console.log(`\n[시나리오: "${currentScenario.instruction}" | 스텝 ${attemptsForScenario}/${maxAttemptsForScenario}]`);
-  
-        const currentUrl = page.url();
-        console.log(`📍 현재 위치: ${currentUrl}`);
-        
-        await discoverAndAddLinks(page, ia, findNodeByUrl(ia, currentUrl) || ia);
-        await saveIA(iaFilePath, ia);
-  
-        const interactiveElements = await getInteractiveElements(page);
-        const links = findNodeByUrl(ia, currentUrl)?.children.map(c => c.url) || [];
-  
-        const agentPrompt = createNavigationAgentPrompt(currentUrl, currentScenario, isLoggedIn, interactiveElements, links);
-        const aiResponse = await robustNurieRequest(agentPrompt, { chatId: sessionChatId });
-        sessionChatId = aiResponse.chatId;
-        const result = parseAiNavigationResponse(aiResponse.text);
-  
-        console.log(`🤖 AI의 판단: ${result.reasoning}`);
-  
+      for (let step = 0; step < 20; step++) { // Max 20 steps per scenario
+        console.log(`\n[시나리오: "${currentScenario.instruction}" | 스텝 ${step + 1}/20]`);
+
         try {
-          switch (result.decision) {
-            case 'navigate':
-              if (!result.url || !links.includes(result.url)) {
-                throw new Error(`AI가 유효하지 않은 URL(${result.url})로 이동하려고 시도했습니다.`);
-              }
-              console.log(`🔀 탐색: ${result.url} 로 이동합니다.`);
-              await page.goto(result.url, { waitUntil: 'networkidle' });
-              break;
-            
-            case 'execute_plan':
-              if (!result.plan) throw new Error("AI가 계획을 제공하지 않았습니다.");
-              console.log(`▶️  실행: "${result.plan.description}" 계획을 시작합니다.`);
-              for (const action of result.plan.actions) {
-                console.log(`  - ${action.description}`);
-                await executeAction(page, action, testContext);
-                 actionLog.push({
-                   timestamp: new Date().toISOString(),
-                   pageUrl: currentUrl,
-                   pageTitle: await page.title(),
-                   scenario: currentScenario.instruction,
-                   action: action,
-                   status: 'success'
-                 });
-              }
-              console.log(`✅ 계획 실행 완료.`);
-              break;
-            
-            case 'scenario_complete':
-              console.log(`🎉 시나리오 완료!`);
-              currentScenario.status = 'completed';
-              const instruction = currentScenario.instruction.toLowerCase();
-              if (instruction.includes('로그인') || instruction.includes('login')) isLoggedIn = true;
-              if (instruction.includes('로그아웃') || instruction.includes('logout')) isLoggedIn = false;
-              break;
+          const currentUrl = page.url();
+          const interactiveElements = await getInteractiveElements(page);
+          const agentPrompt = createReactiveAgentPrompt(
+            currentUrl,
+            interactiveElements,
+            actionLog,
+            testContext,
+            currentScenario.instruction
+          );
+
+          console.log('🤖 AI에게 현재 상황에서 최선의 행동을 묻습니다...');
+          const aiResponse = await robustNurieRequest(agentPrompt, { chatId: sessionChatId });
+          sessionChatId = aiResponse.chatId;
+          const result = parseAiActionResponse(aiResponse.text);
+
+          console.log(`🧠 AI의 판단: ${result.reasoning}`);
+
+          if (result.decision === 'finish') {
+            console.log('🎉 AI가 시나리오 완료를 선언했습니다.');
+            currentScenario.status = 'completed';
+            const instruction = currentScenario.instruction.toLowerCase();
+            if (instruction.includes('로그인') || instruction.includes('login')) isLoggedIn = true;
+            if (instruction.includes('로그아웃') || instruction.includes('logout')) isLoggedIn = false;
+            break; // Exit step loop
           }
+
+          if (!result.action) {
+            throw new Error("AI가 행동을 결정했지만, 실제 행동이 제공되지 않았습니다.");
+          }
+
+          const action = result.action;
+          console.log(`▶️  실행: ${action.description}`);
+          await executeAction(page, action, testContext);
+          actionLog.push({
+            timestamp: new Date().toISOString(),
+            pageUrl: currentUrl,
+            pageTitle: await page.title(),
+            scenario: currentScenario.instruction,
+            action: action,
+            status: 'success'
+          });
+
+          await page.waitForTimeout(1500); // Wait for UI to settle
+
         } catch (e: any) {
-           console.error(`❌ 행동 실행 중 오류 발생: ${e.message}`);
-           actionLog.push({
-             timestamp: new Date().toISOString(),
-             pageUrl: currentUrl,
-             pageTitle: await page.title(),
-             scenario: currentScenario.instruction,
-             action: { type: 'error', description: 'Scenario failed' },
-             status: 'failure',
-             error: e.message
-           });
-           currentScenario.status = 'failed';
+          console.error(`❌ 스텝 실행 중 치명적인 오류 발생: ${e.message}`);
+          actionLog.push({
+            timestamp: new Date().toISOString(),
+            pageUrl: page.url(),
+            pageTitle: await page.title(),
+            scenario: currentScenario.instruction,
+            action: { type: 'error', description: `Scenario failed at step ${step + 1}` },
+            status: 'failure',
+            error: e.message
+          });
+          currentScenario.status = 'failed';
+          break; // Exit step loop
         }
       }
-  
+      
       if (currentScenario.status === 'in-progress') {
-        console.log(`⚠️ 시나리오가 최대 스텝(${maxAttemptsForScenario})에 도달했지만 완료되지 않았습니다. 실패로 처리합니다.`);
-        currentScenario.status = 'failed';
+          console.log('⚠️ 시나리오가 최대 스텝에 도달했지만 완료되지 않았습니다. 실패로 처리합니다.');
+          currentScenario.status = 'failed';
       }
     }
   
@@ -328,167 +325,191 @@ async function loadTestContext(): Promise<{ email: string; password: string; ins
 }
 
 async function getInteractiveElements(page: Page): Promise<any[]> {
-  const selectors = [
-    'a[href]', 'button:not([disabled])', 'input:not([type="hidden"]):not([disabled])',
-    'select:not([disabled])', 'textarea:not([disabled])', '[role="button"]:not([disabled])',
-    '[role="link"]:not([disabled])', '[tabindex]:not([tabindex="-1"])'
-  ].join(', ');
+  const elements = await page.evaluate(() => {
+    const selectors = [
+      'button',
+      'a',
+      'input:not([type="hidden"])',
+      '[role="button"]',
+      '[role="link"]',
+      'select',
+      'textarea',
+      '[onclick]',
+    ];
 
-  const allLocators = await page.locator(selectors).all();
+    const interactiveElements: any[] = [];
+    document.querySelectorAll(selectors.join(', ')).forEach(el => {
+      const element = el as HTMLElement;
+      const isVisible = !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
+      const isDisabled = (el as HTMLButtonElement | HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).disabled;
 
-  const elementsData = [];
+      if (isVisible && !isDisabled) {
+        let labelText = '';
+        // 1. Find explicit label using `for` attribute
+        if (element.id) {
+            const labelFor = document.querySelector(`label[for="${element.id}"]`) as HTMLLabelElement;
+            if (labelFor) {
+                labelText = labelFor.innerText.trim();
+            }
+        }
+        // 2. Find parent label
+        if (!labelText) {
+            const parentLabel = element.closest('label');
+            if (parentLabel) {
+                labelText = parentLabel.innerText.trim();
+            }
+        }
+        // 3. Find label by aria-labelledby
+        if (!labelText && element.getAttribute('aria-labelledby')) {
+            const labelEl = document.getElementById(element.getAttribute('aria-labelledby') || '');
+            if(labelEl) labelText = labelEl.innerText.trim();
+        }
 
-  for (const locator of allLocators) {
-      try {
-          const isVisible = await locator.isVisible({ timeout: 100 });
-          if (!isVisible) continue;
-
-          const tagName = await locator.evaluate(el => el.tagName.toLowerCase());
-          const role = (await locator.getAttribute('role')) || tagName;
-          
-          let value = '';
-          if (['input', 'textarea', 'select'].includes(tagName)) {
-              value = await locator.inputValue();
-          }
-
-          const name = (
-              await locator.getAttribute('aria-label') ||
-              await locator.innerText() ||
-              value ||
-              await locator.getAttribute('placeholder') ||
-              ''
-          ).trim().replace(/\s+/g, ' ');
-
-          let genLocator = '';
-          const id = await locator.getAttribute('id');
-          const dataTestId = await locator.getAttribute('data-testid');
-          const type = await locator.getAttribute('type');
-          const placeholder = await locator.getAttribute('placeholder');
-
-          if (id) {
-              genLocator = `#${id}`;
-          } else if (dataTestId) {
-              genLocator = `[data-testid="${dataTestId}"]`;
-          } else if (type === 'password') {
-              genLocator = 'input[type="password"]';
-          } else if (placeholder) {
-              genLocator = `${role}[placeholder="${placeholder.replace(/"/g, '\\"')}"]`;
-          } else {
-              genLocator = `${role}:has-text("${name.substring(0, 50).replace(/"/g, '\\"')}")`;
-          }
-
-          elementsData.push({ role, name, locator: genLocator });
-      } catch (e) {
-          // Ignore elements that cause errors during inspection
-          // console.warn(`Could not inspect element: ${e.message}`);
+        interactiveElements.push({
+          tag: element.tagName.toLowerCase(),
+          'aria-label': element.getAttribute('aria-label'),
+          'placeholder': element.getAttribute('placeholder'),
+          'text': element.innerText.trim().slice(0, 100),
+          'value': (el as HTMLInputElement).value,
+          'type': element.getAttribute('type'),
+          'label': labelText, // Add the associated label text
+        });
       }
-  }
-
-  const locatorCounts = new Map<string, number>();
-  elementsData.forEach(el => {
-    locatorCounts.set(el.locator, (locatorCounts.get(el.locator) || 0) + 1);
+    });
+    return interactiveElements;
   });
 
-  const processedElements: any[] = [];
-  const locatorIndices = new Map<string, number>();
-  for (const element of elementsData) {
-    const count = locatorCounts.get(element.locator);
-    if (count && count > 1) {
-      const currentIndex = locatorIndices.get(element.locator) || 0;
-      const newLocator = `${element.locator} >> nth=${currentIndex}`;
-      processedElements.push({ ...element, locator: newLocator });
-      locatorIndices.set(element.locator, currentIndex + 1);
+  // Use Playwright's locator to generate robust selectors
+  for (let i = 0; i < elements.length; i++) {
+    const el = elements[i];
+    let locator = '';
+    
+    // Normalize text for use in locators
+    const normalizedText = el.text ? el.text.replace(/\s+/g, ' ').trim() : '';
+
+    if (el.label && el.tag === 'input') {
+        locator = `input[id="${el.id}"]`; // Prefer ID for labeled inputs
+    } else if (normalizedText) {
+      locator = `${el.tag}:has-text("${normalizedText.replace(/"/g, '\\"')}")`;
+    } else if (el['aria-label']) {
+      locator = `${el.tag}[aria-label="${el['aria-label'].replace(/"/g, '\\"')}"]`;
+    } else if (el.placeholder) {
+      locator = `${el.tag}[placeholder="${el.placeholder.replace(/"/g, '\\"')}"]`;
+    } else if (el.type) {
+        locator = `${el.tag}[type="${el.type}"]`;
     } else {
-      processedElements.push(element);
+        // Fallback for elements without clear identifiers
+        locator = `${el.tag}`;
+    }
+
+    const matchingLocators = await page.locator(locator).all();
+    if (matchingLocators.length > 1) {
+       // Find the specific index of the element
+        const allPageElements = await page.locator(locator).all();
+        let finalLocator = locator;
+        for(let j=0; j < allPageElements.length; j++){
+            const text = (await allPageElements[j].innerText()).replace(/\s+/g, ' ').trim();
+            const value = await allPageElements[j].inputValue().catch(()=>'');
+             if(text.slice(0, 100) === normalizedText && value === el.value){
+                finalLocator = `${locator} >> nth=${j}`;
+                break;
+            }
+        }
+       elements[i].locator = finalLocator;
+    } else {
+      elements[i].locator = locator;
     }
   }
 
-  for (let i = processedElements.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [processedElements[i], processedElements[j]] = [processedElements[j], processedElements[i]];
-  }
-  return processedElements;
+  return elements;
 }
 
-function createNavigationAgentPrompt(
+function createReactiveAgentPrompt(
   currentUrl: string,
-  currentScenario: Scenario,
-  isLoggedIn: boolean,
-  elements: any[],
-  links: string[]
-): string {
+  pageElements: any[],
+  previousActions: any[],
+  testContext: { email: string, password: string },
+  currentScenario: string
+) {
+  const simplifiedElements = pageElements.map(el => ({
+    tag: el.tag,
+    text: el.text,
+    label: el.label,
+    placeholder: el.placeholder,
+    'aria-label': el['aria-label'],
+    locator: el.locator,
+  }));
+
   return `
-You are a top-tier QA agent with a talent for strategic navigation.
-Your mission is to achieve a single high-level goal. To do this, you must navigate a website, analyze pages, and execute actions.
+You are an autonomous QA agent. Your job is to look at the current state of a webpage and decide the single best action to take to progress towards a high-level goal.
 
 **[Your High-Level Goal]**
-"${currentScenario.instruction}"
+"${currentScenario}"
 
 **[Your Current State]**
 - You are on page: ${currentUrl}
-- Login Status: ${isLoggedIn ? 'You are logged in.' : 'You are NOT logged in.'}
+- Test credentials you must use:
+  - Email: "${testContext.email}"
+  - Password: "${testContext.password}"
 
-**[Test Data Available]**
-- When you need to enter an email, use the special value: "%%TEST_USER_EMAIL%%"
-- When you need to enter a password, use the special value: "%%TEST_USER_PASSWORD%%"
-- The system will replace these with the correct test credentials. Do NOT use any other email or password.
+**[Previous Actions in this Scenario]**
+This is what you have done so far to achieve the goal. Use this to avoid repeating actions.
 
-**[Analysis]**
-1.  **Goal Check:** Is your High-Level Goal already complete, looking at the current page? If so, decide 'scenario_complete'.
-2.  **Page Assessment:** Is this the right page to make progress on your goal?
-    - If YES: Decide to 'execute_plan' and create a plan of actions.
-    - If NO: Decide to 'navigate' to a better page.
-3.  **Navigation Choice:** If navigating, which of the available links is the MOST promising to get you closer to your goal?
-
-**[Available Interactive Elements on this Page]**
+**[Available Interactive Elements on Current Screen]**
+Here are all the things you can click or fill on the current screen.
 \`\`\`json
-${JSON.stringify(elements.slice(0, 80), null, 2)}
+${JSON.stringify(simplifiedElements.slice(0, 150), null, 2)}
 \`\`\`
 
-**[Available Links to Navigate To]**
+**[Your Task]**
+1.  **Analyze Goal and Reality:** Compare your goal with the current page elements.
+2.  **Decide One Action:** What is the single most logical action to take *right now* to get closer to your goal?
+3.  **Check for Completion:** If the goal is already clearly met by looking at the current page, decide to 'finish'.
+
+**[Output Format]**
+You MUST output ONLY a single JSON object in a \`\`\`json ... \`\`\` block.
+- "decision": Must be 'act' or 'finish'.
+- "reasoning": A brief explanation of why you chose this action.
+- "action": If your decision is 'act', provide the single action object. The action object MUST have "type", "description", and potentially "locator" and "value".
+
+**Example: Goal is "Login". Page has a "Login/Sign Up" button.**
 \`\`\`json
-${JSON.stringify(links, null, 2)}
+{
+  "decision": "act",
+  "reasoning": "I am not logged in and the goal is to log in. The first logical step is to click the 'Login/Sign Up' button to open the login form.",
+  "action": { "type": "click", "locator": "button:has-text(\\"Login/Sign Up\\")", "description": "Click the 'Login/Sign Up' button" }
+}
 \`\`\`
 
-**[Your Decision & Output Format]**
-You MUST output ONLY a single JSON object in a \`\`\`json ... \`\`\` block. Your decision MUST be one of three types:
+**Example: Goal is "Login". After clicking, page now has an "Email Login" button.**
+\`\`\`json
+{
+  "decision": "act",
+  "reasoning": "I need to log in with email. The 'Email Login' button is the next step.",
+  "action": { "type": "click", "locator": "button:has-text(\\"Email Login\\")", "description": "Click the 'Email Login' button" }
+}
+\`\`\`
 
-1.  **If the goal is already met on this page:**
-    \`\`\`json
-    {
-      "decision": "scenario_complete",
-      "reasoning": "I have confirmed that the user is successfully logged in and on the dashboard."
-    }
-    \`\`\`
+**Example: Goal is "Login". Page has email/password fields.**
+\`\`\`json
+{
+  "decision": "act",
+  "reasoning": "The login form is now visible. I will fill the credentials and submit.",
+  "action": { "type": "fill", "locator": "input[placeholder=\\"example@eposo.ai\\"]", "value": "%%TEST_USER_EMAIL%%", "description": "Enter the test user's email" }
+}
+\`\`\`
 
-2.  **If you can make progress on THIS page:**
-    \`\`\`json
-    {
-      "decision": "execute_plan",
-      "reasoning": "This is the login page, so I will fill the form and click the login button.",
-      "plan": {
-        "description": "Fill and submit login form.",
-        "actions": [
-          { "type": "fill", "locator": "input[type=\\"email\\"]", "value": "%%TEST_USER_EMAIL%%", "description": "Enter email" },
-          { "type": "fill", "locator": "input[type=\\"password\\"]", "value": "%%TEST_USER_PASSWORD%%", "description": "Enter password" },
-          { "type": "click", "locator": "button:has-text(\\"Login\\")", "description": "Click login button" }
-        ]
-      }
-    }
-    \`\`\`
-
-3.  **If this is the WRONG page and you need to navigate:**
-    \`\`\`json
-    {
-      "decision": "navigate",
-      "reasoning": "I am on the homepage, but I need to go to the settings page to change notifications. The '/settings' link is the most direct path.",
-      "url": "https://example.com/settings"
-    }
-    \`\`\`
+**Example: Goal is "Login", and you are now on the dashboard.**
+\`\`\`json
+{
+  "decision": "finish",
+  "reasoning": "I have successfully logged in and am now on the dashboard. The goal is complete."
+}
+\`\`\`
 `;
 }
 
-function parseAiNavigationResponse(responseText: string): AiNavigationResponse {
+function parseAiActionResponse(responseText: string): AiActionResponse {
   if (!responseText) {
     throw new Error("AI 응답이 비어있습니다.");
   }
@@ -500,8 +521,8 @@ function parseAiNavigationResponse(responseText: string): AiNavigationResponse {
     // Pre-process the JSON string to remove trailing commas
     let jsonString = jsonMatch[1];
     jsonString = jsonString.replace(/,\s*([}\]])/g, '$1');
-    
-    return JSON.parse(jsonString) as AiNavigationResponse;
+
+    return JSON.parse(jsonString) as AiActionResponse;
   } catch (e: any) {
     console.error("AI 응답 JSON을 파싱하는 데 실패했습니다.", e, "\nOriginal response:", responseText);
     throw new Error("AI 응답 파싱 실패");
@@ -510,25 +531,31 @@ function parseAiNavigationResponse(responseText: string): AiNavigationResponse {
 
 async function executeAction(page: Page, action: Action, testContext: { email: string, password: string }) {
   const { type: actionType, locator, value } = action;
+  const actionTimeout = 15000; // 15 seconds timeout
 
-  if (!locator) throw new Error("Action requires a locator, but it is missing.");
+  if (!locator) {
+    if(actionType === 'click' || actionType === 'fill') {
+      throw new Error(`Action type ${actionType} requires a locator, but it is missing.`);
+    }
+  }
 
   let finalValue = value;
   if (value === '%%TEST_USER_EMAIL%%') finalValue = testContext.email;
-  else if (value === '%%TEST_USER_PASSWORD%%') finalValue = testContext.password;
+  if (value === '%%TEST_USER_PASSWORD%%') finalValue = testContext.password;
 
-  const target = page.locator(locator).first();
+  const targetLocator = page.locator(locator!).first();
 
-  switch (actionType) {
-    case 'click':
-      await target.click({ timeout: 5000 });
-      break;
-    case 'fill':
-      if (finalValue === undefined) throw new Error('fill action requires a value.');
-      await target.fill(finalValue, { timeout: 5000 });
-      break;
-    default:
-      console.error(`알 수 없는 액션 타입: ${actionType}`);
+  if (actionType === 'click') {
+    if(!locator) throw new Error("Click action is missing a locator.");
+    await targetLocator.waitFor({ state: 'visible', timeout: actionTimeout });
+    await targetLocator.click({timeout: 10000});
+  } else if (actionType === 'fill') {
+    if(!locator) throw new Error("Fill action is missing a locator.");
+    if(finalValue === undefined) throw new Error("Fill action is missing a value.");
+    await targetLocator.waitFor({ state: 'visible', timeout: actionTimeout });
+    await targetLocator.fill(finalValue);
+  } else {
+    throw new Error(`Unsupported action type: ${actionType}`);
   }
 }
 
