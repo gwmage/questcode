@@ -365,11 +365,17 @@ async function getInteractiveElements(page: Page): Promise<any[]> {
             if(labelEl) labelText = labelEl.innerText.trim();
         }
 
+        // Clone the element to safely manipulate it for text extraction
+        const clone = element.cloneNode(true) as HTMLElement;
+        // Remove known hidden elements to get a cleaner text representation
+        clone.querySelectorAll('.s-hide, [style*="display: none"]').forEach(child => child.remove());
+        const visibleText = clone.innerText.trim().slice(0, 100);
+
         interactiveElements.push({
           tag: element.tagName.toLowerCase(),
           'aria-label': element.getAttribute('aria-label'),
           'placeholder': element.getAttribute('placeholder'),
-          'text': element.innerText.trim().slice(0, 100),
+          'text': visibleText,
           'value': (el as HTMLInputElement).value,
           'type': element.getAttribute('type'),
           'label': labelText, // Add the associated label text
