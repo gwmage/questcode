@@ -16,14 +16,11 @@ const MAX_ELEMENTS_FOR_PROMPT = 150;
 async function main() {
   let browser: any = null;
   try {
-    const url = 'https://eposo.ai/#/login'; // Hardcode for debugging
-    /*
     const url = process.argv[2];
     if (!url) {
       console.error('❌ 에러: 테스트할 URL을 입력해주세요. 예: npm run dev -- https://example.com');
       process.exit(1);
     }
-    */
 
     let ia = await loadIA(iaFilePath, url);
     console.log('✅ IA 파일 로드/생성 완료.');
@@ -74,7 +71,7 @@ async function main() {
         continue;
       }
 
-      // await discoverAndAddLinks(page, ia, currentNode); // Disable discovery for debugging
+      await discoverAndAddLinks(page, ia, currentNode);
       await saveIA(iaFilePath, ia);
 
       const pageActionHistory: AiResponse['action'][] = [];
@@ -195,48 +192,59 @@ async function loadTestContext(): Promise<{ email: string; password: string; ins
 }
 
 async function getInteractiveElements(page: Page): Promise<any[]> {
-  let elements = await page.evaluate(() => {
-    const selectors = [
-      'a[href]', 'button:not([disabled])', 'input:not([type="hidden"]):not([disabled])',
-      'select:not([disabled])', 'textarea:not([disabled])', '[role="button"]:not([disabled])',
-      '[role="link"]:not([disabled])', '[tabindex]:not([tabindex="-1"])'
-    ].join(', ');
+  const selectors = [
+    'a[href]', 'button:not([disabled])', 'input:not([type="hidden"]):not([disabled])',
+    'select:not([disabled])', 'textarea:not([disabled])', '[role="button"]:not([disabled])',
+    '[role="link"]:not([disabled])', '[tabindex]:not([tabindex="-1"])'
+  ].join(', ');
 
-    return Array.from(document.querySelectorAll(selectors))
-      .filter(el => {
-        const element = el as HTMLElement;
-        return element.offsetWidth > 0 && element.offsetHeight > 0;
-      })
-      .map(el => {
-        const element = el as HTMLElement;
-        const inputElement = el as HTMLInputElement;
-        const role = element.getAttribute('role') || element.tagName.toLowerCase();
-        const name = (
-            element.getAttribute('aria-label') ||
-            element.innerText ||
-            inputElement.value ||
-            inputElement.placeholder ||
-            ''
-        ).trim().replace(/\s+/g, ' ');
+  const allLocators = await page.locator(selectors).all();
 
-        let locator = '';
-        if (element.id) {
-          locator = `#${element.id}`;
-        } else if (element.getAttribute('data-testid')) {
-          locator = `[data-testid="${element.getAttribute('data-testid')}"]`;
-        } else if (inputElement.type === 'password') {
-          locator = 'input[type="password"]';
-        } else if (inputElement.placeholder) {
-          locator = `${role}[placeholder="${inputElement.placeholder.replace(/"/g, '\\"')}"]`;
-        } else {
-          locator = `${role}:has-text("${name.substring(0, 50).replace(/"/g, '\\"')}")`;
-        }
-        return { role, name, locator };
-      });
-  });
+  const elements = [];
+  for (const locator of allLocators) {
+    const isVisible = await locator.isVisible();
+    if (!isVisible) continue;
 
-  console.log('--- Raw Elements ---');
-  console.log(JSON.stringify(elements.map(e => e.locator), null, 2));
+    const tagName = await locator.evaluate(el => el.tagName.toLowerCase());
+    const role = (await locator.getAttribute('role')) || tagName;
+    
+    let value = '';
+    if (['input', 'textarea', 'select'].includes(tagName)) {
+      value = await locator.inputValue();
+    }
+
+    const name = (
+      await locator.getAttribute('aria-label') ||
+      await locator.innerText() ||
+      value ||
+      await locator.getAttribute('placeholder') ||
+      ''
+    ).trim().replace(/\s+/g, ' ');
+
+    let genLocator = '';
+    const id = await locator.getAttribute('id');
+    const dataTestId = await locator.getAttribute('data-testid');
+    const type = await locator.getAttribute('type');
+    const placeholder = await locator.getAttribute('placeholder');
+
+    if (id) {
+      genLocator = `#${id}`;
+    } else if (dataTestId) {
+      genLocator = `[data-testid="${dataTestId}"]`;
+    } else if (type === 'password') {
+      genLocator = 'input[type="password"]';
+    } else if (placeholder) {
+      genLocator = `${role}[placeholder="${placeholder.replace(/"/g, '\\"')}"]`;
+    } else {
+      genLocator = `${role}:has-text("${name.substring(0, 50).replace(/"/g, '\\"')}")`;
+    }
+
+    elements.push({ role, name, locator: genLocator });
+  }
+
+  // console.log('--- Raw Elements ---');
+  // console.log(JSON.stringify(elements.map(e => e.locator), null, 2));
+
 
   // Post-process to handle duplicate locators
   const locatorCounts = new Map<string, number>();
@@ -258,8 +266,9 @@ async function getInteractiveElements(page: Page): Promise<any[]> {
     }
   }
 
-  console.log('--- Processed Elements ---');
-  console.log(JSON.stringify(processedElements.map(e => e.locator), null, 2));
+  // console.log('--- Processed Elements ---');
+  // console.log(JSON.stringify(processedElements.map(e => e.locator), null, 2));
+
 
   for (let i = processedElements.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
