@@ -13,19 +13,44 @@ chromium.use(stealth());
 const iaFilePath = path.join(__dirname, '..', 'ia.json');
 const MAX_ELEMENTS_FOR_PROMPT = 150;
 
+interface Scenario {
+  id: number;
+  instruction: string;
+  status: 'pending' | 'in-progress' | 'completed' | 'failed';
+  attemptsOnPage: number;
+}
+
+interface Action {
+  type: string;
+  locator?: string;
+  value?: string;
+  description: string;
+}
+
 interface ActionLogEntry {
   timestamp: string;
   pageUrl: string;
   pageTitle: string;
   scenario: string | null;
-  action: AiResponse['action'];
+  action: Action;
   status: 'success' | 'failure';
   error?: string;
+}
+
+interface AiNavigationResponse {
+  decision: 'navigate' | 'execute_plan' | 'scenario_complete';
+  reasoning: string;
+  url?: string; // For 'navigate'
+  plan?: { // For 'execute_plan'
+    description: string;
+    actions: Action[];
+  }
 }
 
 async function main() {
   let browser: any = null;
   const actionLog: ActionLogEntry[] = [];
+  let scenarios: Scenario[] = [];
 
   try {
     const url = process.argv[2];
@@ -33,6 +58,17 @@ async function main() {
       console.error('❌ 에러: 테스트할 URL을 입력해주세요. 예: npm run dev -- https://example.com');
       process.exit(1);
     }
+
+    const testContext = await loadTestContext();
+    scenarios = testContext.instructions
+      .split('\n')
+      .filter(line => line.trim().startsWith('- '))
+      .map((line, index) => ({
+        id: index,
+        instruction: line.trim().substring(2).trim(),
+        status: 'pending',
+        attemptsOnPage: 0,
+      }));
 
     let ia = await loadIA(iaFilePath, url);
     console.log('✅ IA 파일 로드/생성 완료.');
@@ -51,7 +87,6 @@ async function main() {
       }
     });
 
-    const testContext = await loadTestContext();
     if (testContext.instructions) {
       console.log('✅ 테스트 시나리오 로드 완료:\n', testContext.instructions);
     } else {
@@ -59,124 +94,99 @@ async function main() {
     }
 
     let sessionChatId: string | undefined = undefined;
-    let currentScenario: string | null = null;
+    let currentScenario: Scenario | null = null;
     let isLoggedIn = false;
-
-    while (true) {
-      const currentNode = findNextUnvisitedNode(ia);
-      if (!currentNode) {
-        console.log('\n\n✅ 모든 페이지 탐색 완료.');
-        break;
-      }
-
-      console.log(`\n\n🕵️‍♂️ 페이지 탐색 시작: ${currentNode.url}`);
-      currentNode.status = 'in-progress';
-
-      try {
-        await page.goto(currentNode.url, { waitUntil: 'networkidle', timeout: 30000 });
-        currentNode.title = await page.title();
-        console.log(`📄 페이지 제목: ${currentNode.title}`);
-      } catch (e: any) {
-        console.error(`❌ 페이지 이동 실패: ${currentNode.url}, 오류: ${e.message}`);
-        currentNode.status = 'visited';
-        currentNode.title = `GOTO_FAILED`;
+  
+    console.log(`🚀 테스트를 시작합니다. 초기 URL로 이동: ${url}`);
+    await page.goto(url, { waitUntil: 'networkidle' });
+  
+    for (const scenario of scenarios) {
+      currentScenario = scenario;
+      currentScenario.status = 'in-progress';
+      console.log(`\n\n🎯 새로운 시나리오 시작: "${currentScenario.instruction}"`);
+      
+      let attemptsForScenario = 0;
+      let maxAttemptsForScenario = 20; // Max 20 steps (pages or plans) per scenario
+  
+      while(attemptsForScenario < maxAttemptsForScenario && currentScenario.status === 'in-progress') {
+        attemptsForScenario++;
+        console.log(`\n[시나리오: "${currentScenario.instruction}" | 스텝 ${attemptsForScenario}/${maxAttemptsForScenario}]`);
+  
+        const currentUrl = page.url();
+        console.log(`📍 현재 위치: ${currentUrl}`);
+        
+        await discoverAndAddLinks(page, ia, findNodeByUrl(ia, currentUrl) || ia);
         await saveIA(iaFilePath, ia);
-        continue;
-      }
-
-      await discoverAndAddLinks(page, ia, currentNode);
-      await saveIA(iaFilePath, ia);
-
-      const pageActionHistory: AiResponse['action'][] = [];
-
-      // --- Scenario Execution Loop ---
-      for (let attempt = 0; attempt < 10; attempt++) { // Max 10 attempts per page to avoid infinite loops
-          console.log(`\n🤖 AI에게 행동 요청 (시도 ${attempt + 1}/10, 현재 시나리오: ${currentScenario || '없음'})`);
-
-          let interactiveElements = await getInteractiveElements(page);
-          if (interactiveElements.length > MAX_ELEMENTS_FOR_PROMPT) {
-              console.log(`⚠️ 요소가 너무 많습니다(${interactiveElements.length}개). AI에 전달할 요소를 ${MAX_ELEMENTS_FOR_PROMPT}개로 줄입니다.`);
-              interactiveElements = interactiveElements.slice(0, MAX_ELEMENTS_FOR_PROMPT);
-          }
-          
-          const agentPrompt = createAgentPrompt(currentNode, testContext, interactiveElements, currentScenario, pageActionHistory, isLoggedIn);
-          const aiResponse = await robustNurieRequest(agentPrompt, { chatId: sessionChatId });
-          sessionChatId = aiResponse.chatId;
-
-          const result = parseAiResponse(aiResponse.text);
-
-          if (result.action.type === 'finish_page') {
-              console.log('💡 AI가 이 페이지의 모든 시나리오를 완료했다고 판단했습니다.');
-              currentScenario = null;
-              break; // Exit scenario loop for this page
-          }
-
-          currentScenario = result.scenario; // Update current scenario
-
-          try {
-              const originalUrl = page.url();
-              console.log(`▶️  실행: ${result.action.type} on ${result.action.locator || 'N/A'} (${result.action.description})`);
-              await executeAction(page, result.action, testContext);
-              pageActionHistory.push(result.action);
-              actionLog.push({
-                timestamp: new Date().toISOString(),
-                pageUrl: currentNode.url,
-                pageTitle: currentNode.title || '',
-                scenario: result.scenario,
-                action: result.action,
-                status: 'success'
-              });
-
-              if (!isLoggedIn && result.scenario?.toLowerCase().includes('login')) {
-                  await page.waitForTimeout(3000); // Wait for navigation after login action
-                  const newUrl = page.url();
-                  if (originalUrl !== newUrl && !newUrl.includes('login')) {
-                      isLoggedIn = true;
-                      console.log('✅ 로그인 성공으로 판단되어 상태를 업데이트합니다.');
-                  }
+  
+        const interactiveElements = await getInteractiveElements(page);
+        const links = findNodeByUrl(ia, currentUrl)?.children.map(c => c.url) || [];
+  
+        const agentPrompt = createNavigationAgentPrompt(currentUrl, currentScenario, isLoggedIn, interactiveElements, links);
+        const aiResponse = await robustNurieRequest(agentPrompt, { chatId: sessionChatId });
+        sessionChatId = aiResponse.chatId;
+        const result = parseAiNavigationResponse(aiResponse.text);
+  
+        console.log(`🤖 AI의 판단: ${result.reasoning}`);
+  
+        try {
+          switch (result.decision) {
+            case 'navigate':
+              if (!result.url || !links.includes(result.url)) {
+                throw new Error(`AI가 유효하지 않은 URL(${result.url})로 이동하려고 시도했습니다.`);
               }
-
-              const newUrl = page.url();
-              if (newUrl !== originalUrl && !newUrl.startsWith('chrome-error')) {
-                  const newHostname = new URL(newUrl).hostname;
-                  if (newHostname.endsWith(baseHostname)) {
-                      console.log(`✨ URL 변경 감지! 현재 페이지 탐색을 중단하고 새 URL로 이동합니다.`);
-                      if (!findNodeByUrl(ia, newUrl)) {
-                          addNodeToIA(ia, currentNode.url, { url: newUrl, title: 'TBD', status: 'unvisited' });
-                      }
-                      currentScenario = null; // Reset scenario on URL change
-                      break; 
-                  } else {
-                      console.log(`🛂 외부 URL(${newUrl})로의 이동을 감지하여 이전 페이지로 돌아갑니다.`);
-                      await page.goBack();
-                  }
+              console.log(`🔀 탐색: ${result.url} 로 이동합니다.`);
+              await page.goto(result.url, { waitUntil: 'networkidle' });
+              break;
+            
+            case 'execute_plan':
+              if (!result.plan) throw new Error("AI가 계획을 제공하지 않았습니다.");
+              console.log(`▶️  실행: "${result.plan.description}" 계획을 시작합니다.`);
+              for (const action of result.plan.actions) {
+                console.log(`  - ${action.description}`);
+                await executeAction(page, action, testContext);
+                 actionLog.push({
+                   timestamp: new Date().toISOString(),
+                   pageUrl: currentUrl,
+                   pageTitle: await page.title(),
+                   scenario: currentScenario.instruction,
+                   action: action,
+                   status: 'success'
+                 });
               }
-          } catch (e: any) {
-              console.error(`❌ '${result.action.description}' 행동 실행 중 오류 발생: ${e.message}`);
-              actionLog.push({
-                timestamp: new Date().toISOString(),
-                pageUrl: currentNode.url,
-                pageTitle: currentNode.title || '',
-                scenario: result.scenario,
-                action: result.action,
-                status: 'failure',
-                error: e.message
-              });
-              console.log('🛑 현재 시나리오 실행을 중단합니다.');
-              currentScenario = null; // Reset scenario on error
+              console.log(`✅ 계획 실행 완료.`);
+              break;
+            
+            case 'scenario_complete':
+              console.log(`🎉 시나리오 완료!`);
+              currentScenario.status = 'completed';
+              const instruction = currentScenario.instruction.toLowerCase();
+              if (instruction.includes('로그인') || instruction.includes('login')) isLoggedIn = true;
+              if (instruction.includes('로그아웃') || instruction.includes('logout')) isLoggedIn = false;
               break;
           }
+        } catch (e: any) {
+           console.error(`❌ 행동 실행 중 오류 발생: ${e.message}`);
+           actionLog.push({
+             timestamp: new Date().toISOString(),
+             pageUrl: currentUrl,
+             pageTitle: await page.title(),
+             scenario: currentScenario.instruction,
+             action: { type: 'error', description: 'Scenario failed' },
+             status: 'failure',
+             error: e.message
+           });
+           currentScenario.status = 'failed';
+        }
       }
-      // --- End Scenario Execution Loop ---
-      
-      currentNode.status = 'visited';
-      console.log(`✅ 페이지 탐색 완료: ${currentNode.url}`);
-      await saveIA(iaFilePath, ia);
+  
+      if (currentScenario.status === 'in-progress') {
+        console.log(`⚠️ 시나리오가 최대 스텝(${maxAttemptsForScenario})에 도달했지만 완료되지 않았습니다. 실패로 처리합니다.`);
+        currentScenario.status = 'failed';
+      }
     }
-
+  
     console.log('\n\n===== 모든 테스트가 성공적으로 완료되었습니다. =====\n');
-    await generateQAReport(ia, actionLog, testContext.instructions);
-    console.log(JSON.stringify(ia, null, 2));
+    await generateQAReport(ia, actionLog, scenarios);
   } catch (error) {
     console.error('스크립트 실행 중 치명적인 오류가 발생했습니다.', error);
   } finally {
@@ -186,7 +196,7 @@ async function main() {
   }
 }
 
-async function generateQAReport(ia: IANode, actionLog: ActionLogEntry[], instructions: string) {
+async function generateQAReport(ia: IANode, actionLog: ActionLogEntry[], scenarios: Scenario[]) {
   const startTime = actionLog.length > 0 ? new Date(actionLog[0].timestamp) : new Date();
   const endTime = new Date();
   const duration = (endTime.getTime() - startTime.getTime()) / 1000 / 60; // in minutes
@@ -209,10 +219,18 @@ async function generateQAReport(ia: IANode, actionLog: ActionLogEntry[], instruc
   report += `**테스트 종료:** ${endTime.toLocaleString()} (${duration.toFixed(2)}분 소요)\n`;
   report += `**테스트 대상:** ${ia.url}\n\n`;
   
-  report += `## 🎯 테스트 목표 (사용자 지침)\n`;
-  report += `\`\`\`\n${instructions}\n\`\`\`\n\n`;
+  report += `## 🎯 시나리오 기반 테스트 결과\n\n`;
+  report += `| Status | Instruction |\n`;
+  report += `| :--- | :--- |\n`;
+  scenarios.forEach(s => {
+    let statusIcon = '⏳';
+    if(s.status === 'completed') statusIcon = '✅';
+    if(s.status === 'failed') statusIcon = '❌';
+    report += `| ${statusIcon} ${s.status} | ${s.instruction} |\n`;
+  })
+  report += '\n';
 
-  report += `## 📊 테스트 통계\n`;
+  report += `## 📊 액션 통계\n`;
   report += `| 항목 | 수치 |\n`;
   report += `| :--- | :--- |\n`;
   report += `| 방문한 페이지 수 | ${visitedNodes.length} |\n`;
@@ -224,7 +242,7 @@ async function generateQAReport(ia: IANode, actionLog: ActionLogEntry[], instruc
   if (failedActions.length > 0) {
     report += `## 🐞 발견된 버그 및 오류\n\n`;
     failedActions.forEach(log => {
-      report += `### ❌ ${log.action.description}\n`;
+      report += `### ❌ ${log.action?.description || '오류'}\n`;
       report += `- **페이지:** [${log.pageTitle}](${log.pageUrl})\n`;
       report += `- **시나리오:** ${log.scenario}\n`;
       report += `- **오류 메시지:** \`${log.error}\`\n\n`;
@@ -254,9 +272,8 @@ async function generateQAReport(ia: IANode, actionLog: ActionLogEntry[], instruc
   }
   
   try {
-    const reportPath = path.join(__dirname, '..', 'QA-Report.md');
-    await fs.writeFile(reportPath, report);
-    console.log(`✅ QA 보고서가 'QA-Report.md' 파일로 생성되었습니다.`);
+    await fs.writeFile('QA-Report.md', report, 'utf-8');
+    console.log('✅ QA 보고서가 \'QA-Report.md\' 파일로 생성되었습니다.');
   } catch (error) {
     console.error('❌ QA 보고서 파일 생성에 실패했습니다.', error);
   }
@@ -393,111 +410,85 @@ async function getInteractiveElements(page: Page): Promise<any[]> {
   return processedElements;
 }
 
-function createAgentPrompt(
-  currentNode: IANode,
-  testContext: { instructions: string },
+function createNavigationAgentPrompt(
+  currentUrl: string,
+  currentScenario: Scenario,
+  isLoggedIn: boolean,
   elements: any[],
-  currentScenario: string | null,
-  pageActionHistory: AiResponse['action'][],
-  isLoggedIn: boolean
+  links: string[]
 ): string {
-  const scenarioStatus = currentScenario 
-    ? `You are currently in the middle of this scenario: "${currentScenario}". Your task is to decide the next single action to continue it.`
-    : `You are not currently working on a scenario. Your task is to look at the user's goals and the page, pick the most important scenario, and define the FIRST single action to start it.`;
-
-  const historySection = pageActionHistory.length > 0
-    ? `
-**[Recent Actions on this Page]**
-You have already performed these actions. Do not repeat them unless necessary.
-\`\`\`json
-${JSON.stringify(pageActionHistory, null, 2)}
-\`\`\`
-` : '';
-
   return `
-You are a superhuman QA automation engineer. Your mission is to progress through user-given scenarios one step at a time.
+You are a top-tier QA agent with a talent for strategic navigation.
+Your mission is to achieve a single high-level goal. To do this, you must navigate a website, analyze pages, and execute actions.
 
-**[Primary Scenarios from User]**
-\`\`\`
-${testContext.instructions}
-\`\`\`
+**[Your High-Level Goal]**
+"${currentScenario.instruction}"
 
 **[Your Current State]**
-- Current Page URL: ${currentNode.url}
-- Login Status: ${isLoggedIn ? 'You are considered logged in. Do not try to log in again.' : 'You are not logged in.'}
-- Scenario Status: ${scenarioStatus}
-${historySection}
-**[Interactive Elements on Current Page]**
+- You are on page: ${currentUrl}
+- Login Status: ${isLoggedIn ? 'You are logged in.' : 'You are NOT logged in.'}
+
+**[Test Data Available]**
+- When you need to enter an email, use the special value: "%%TEST_USER_EMAIL%%"
+- When you need to enter a password, use the special value: "%%TEST_USER_PASSWORD%%"
+- The system will replace these with the correct test credentials. Do NOT use any other email or password.
+
+**[Analysis]**
+1.  **Goal Check:** Is your High-Level Goal already complete, looking at the current page? If so, decide 'scenario_complete'.
+2.  **Page Assessment:** Is this the right page to make progress on your goal?
+    - If YES: Decide to 'execute_plan' and create a plan of actions.
+    - If NO: Decide to 'navigate' to a better page.
+3.  **Navigation Choice:** If navigating, which of the available links is the MOST promising to get you closer to your goal?
+
+**[Available Interactive Elements on this Page]**
 \`\`\`json
-${JSON.stringify(elements, null, 2)}
+${JSON.stringify(elements.slice(0, 80), null, 2)}
 \`\`\`
 
-**[Your Task & Action Rules]**
-1.  **Analyze your state:** Read the scenario status and recent actions.
-2.  **Decide the next single action:** Based on the elements and your history, choose the one best action to progress the scenario.
-3.  **Action Types:** Your action \`type\` MUST be one of: \`click\`, \`fill\`, \`finish_page\`.
-    - Use \`click\` to click buttons, links, etc.
-    - Use \`fill\` to type into input fields.
-    - Use \`finish_page\` when all scenarios on the current page are complete.
-4.  **Mandatory fields:** 
-    - \`click\` and \`fill\` actions require a \`locator\`.
-    - \`fill\` action requires a \`value\`.
-    - \`description\` is required for all actions.
-
-**[Output Format]**
-Your entire output MUST be ONLY a single JSON object inside a \`\`\`json ... \`\`\` block. The JSON object must have two keys: "scenario" and "action".
-- "scenario": A string describing the high-level scenario you are currently working on. If you are finishing, set this to null.
-- "action": An object describing the single action to perform.
-
-**Example: Starting a "Login" scenario**
+**[Available Links to Navigate To]**
 \`\`\`json
-{
-  "scenario": "Log in with email and password.",
-  "action": {
-    "type": "click",
-    "locator": "button:has-text(\\"Email Login\\")",
-    "description": "Click the 'Email Login' button to reveal the input fields."
-  }
-}
+${JSON.stringify(links, null, 2)}
 \`\`\`
 
-**Example: Continuing a "Login" scenario (after clicking the button)**
-\`\`\`json
-{
-  "scenario": "Log in with email and password.",
-  "action": {
-    "type": "fill",
-    "locator": "input[name='email']",
-    "value": "%%TEST_USER_EMAIL%%",
-    "description": "Enter the test user's email."
-  }
-}
-\`\`\`
+**[Your Decision & Output Format]**
+You MUST output ONLY a single JSON object in a \`\`\`json ... \`\`\` block. Your decision MUST be one of three types:
 
-**Example: Finishing the page**
-\`\`\`json
-{
-  "scenario": null,
-  "action": {
-    "type": "finish_page",
-    "description": "All scenarios on this page are complete."
-  }
-}
-\`\`\`
+1.  **If the goal is already met on this page:**
+    \`\`\`json
+    {
+      "decision": "scenario_complete",
+      "reasoning": "I have confirmed that the user is successfully logged in and on the dashboard."
+    }
+    \`\`\`
+
+2.  **If you can make progress on THIS page:**
+    \`\`\`json
+    {
+      "decision": "execute_plan",
+      "reasoning": "This is the login page, so I will fill the form and click the login button.",
+      "plan": {
+        "description": "Fill and submit login form.",
+        "actions": [
+          { "type": "fill", "locator": "input[type=\\"email\\"]", "value": "%%TEST_USER_EMAIL%%", "description": "Enter email" },
+          { "type": "fill", "locator": "input[type=\\"password\\"]", "value": "%%TEST_USER_PASSWORD%%", "description": "Enter password" },
+          { "type": "click", "locator": "button:has-text(\\"Login\\")", "description": "Click login button" }
+        ]
+      }
+    }
+    \`\`\`
+
+3.  **If this is the WRONG page and you need to navigate:**
+    \`\`\`json
+    {
+      "decision": "navigate",
+      "reasoning": "I am on the homepage, but I need to go to the settings page to change notifications. The '/settings' link is the most direct path.",
+      "url": "https://example.com/settings"
+    }
+    \`\`\`
 `;
 }
 
-interface AiResponse {
-  scenario: string | null;
-  action: {
-    type: string;
-    locator?: string;
-    value?: string;
-    description: string;
-  };
-}
-
-function parseAiResponse(responseText: string): AiResponse {
+function parseAiNavigationResponse(responseText: string): AiNavigationResponse {
   if (!responseText) {
     throw new Error("AI 응답이 비어있습니다.");
   }
@@ -506,17 +497,20 @@ function parseAiResponse(responseText: string): AiResponse {
     if (!jsonMatch) {
       throw new Error("AI 응답에서 JSON 블록을 찾지 못했습니다.");
     }
-    return JSON.parse(jsonMatch[1]) as AiResponse;
+    // Pre-process the JSON string to remove trailing commas
+    let jsonString = jsonMatch[1];
+    jsonString = jsonString.replace(/,\s*([}\]])/g, '$1');
+    
+    return JSON.parse(jsonString) as AiNavigationResponse;
   } catch (e: any) {
     console.error("AI 응답 JSON을 파싱하는 데 실패했습니다.", e, "\nOriginal response:", responseText);
     throw new Error("AI 응답 파싱 실패");
   }
 }
 
-async function executeAction(page: Page, action: { type: string, locator?: string, value?: string }, testContext: { email: string, password: string }) {
+async function executeAction(page: Page, action: Action, testContext: { email: string, password: string }) {
   const { type: actionType, locator, value } = action;
 
-  if (actionType === 'finish_page') return;
   if (!locator) throw new Error("Action requires a locator, but it is missing.");
 
   let finalValue = value;
