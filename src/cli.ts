@@ -13,8 +13,20 @@ chromium.use(stealth());
 const iaFilePath = path.join(__dirname, '..', 'ia.json');
 const MAX_ELEMENTS_FOR_PROMPT = 150;
 
+interface ActionLogEntry {
+  timestamp: string;
+  pageUrl: string;
+  pageTitle: string;
+  scenario: string | null;
+  action: AiResponse['action'];
+  status: 'success' | 'failure';
+  error?: string;
+}
+
 async function main() {
   let browser: any = null;
+  const actionLog: ActionLogEntry[] = [];
+
   try {
     const url = process.argv[2];
     if (!url) {
@@ -48,6 +60,7 @@ async function main() {
 
     let sessionChatId: string | undefined = undefined;
     let currentScenario: string | null = null;
+    let isLoggedIn = false;
 
     while (true) {
       const currentNode = findNextUnvisitedNode(ia);
@@ -86,7 +99,7 @@ async function main() {
               interactiveElements = interactiveElements.slice(0, MAX_ELEMENTS_FOR_PROMPT);
           }
           
-          const agentPrompt = createAgentPrompt(currentNode, testContext, interactiveElements, currentScenario, pageActionHistory);
+          const agentPrompt = createAgentPrompt(currentNode, testContext, interactiveElements, currentScenario, pageActionHistory, isLoggedIn);
           const aiResponse = await robustNurieRequest(agentPrompt, { chatId: sessionChatId });
           sessionChatId = aiResponse.chatId;
 
@@ -105,7 +118,23 @@ async function main() {
               console.log(`▶️  실행: ${result.action.type} on ${result.action.locator || 'N/A'} (${result.action.description})`);
               await executeAction(page, result.action, testContext);
               pageActionHistory.push(result.action);
-              await page.waitForTimeout(1000);
+              actionLog.push({
+                timestamp: new Date().toISOString(),
+                pageUrl: currentNode.url,
+                pageTitle: currentNode.title || '',
+                scenario: result.scenario,
+                action: result.action,
+                status: 'success'
+              });
+
+              if (!isLoggedIn && result.scenario?.toLowerCase().includes('login')) {
+                  await page.waitForTimeout(3000); // Wait for navigation after login action
+                  const newUrl = page.url();
+                  if (originalUrl !== newUrl && !newUrl.includes('login')) {
+                      isLoggedIn = true;
+                      console.log('✅ 로그인 성공으로 판단되어 상태를 업데이트합니다.');
+                  }
+              }
 
               const newUrl = page.url();
               if (newUrl !== originalUrl && !newUrl.startsWith('chrome-error')) {
@@ -124,6 +153,15 @@ async function main() {
               }
           } catch (e: any) {
               console.error(`❌ '${result.action.description}' 행동 실행 중 오류 발생: ${e.message}`);
+              actionLog.push({
+                timestamp: new Date().toISOString(),
+                pageUrl: currentNode.url,
+                pageTitle: currentNode.title || '',
+                scenario: result.scenario,
+                action: result.action,
+                status: 'failure',
+                error: e.message
+              });
               console.log('🛑 현재 시나리오 실행을 중단합니다.');
               currentScenario = null; // Reset scenario on error
               break;
@@ -137,6 +175,7 @@ async function main() {
     }
 
     console.log('\n\n===== 모든 테스트가 성공적으로 완료되었습니다. =====\n');
+    await generateQAReport(ia, actionLog, testContext.instructions);
     console.log(JSON.stringify(ia, null, 2));
   } catch (error) {
     console.error('스크립트 실행 중 치명적인 오류가 발생했습니다.', error);
@@ -147,29 +186,109 @@ async function main() {
   }
 }
 
-async function discoverAndAddLinks(page: Page, ia: IANode, currentNode: IANode) {
-  const newLinks = await page.evaluate((baseUrl: string) => {
-    const baseHostname = new URL(baseUrl).hostname;
-    return Array.from(document.querySelectorAll('a[href]')).map(el => (el as HTMLAnchorElement).href)
-      .filter(href => {
-        try {
-          if (!href || href.startsWith('javascript:') || href.endsWith('#')) return false;
-          const url = new URL(href);
-          return url.hostname.endsWith(baseHostname);
-        } catch (e) {
-          return false;
-        }
-      });
-  }, currentNode.url);
+async function generateQAReport(ia: IANode, actionLog: ActionLogEntry[], instructions: string) {
+  const startTime = actionLog.length > 0 ? new Date(actionLog[0].timestamp) : new Date();
+  const endTime = new Date();
+  const duration = (endTime.getTime() - startTime.getTime()) / 1000 / 60; // in minutes
 
-  let linksAdded = 0;
-  for (const link of newLinks) {
-    if (addNodeToIA(ia, currentNode.url, { url: link, title: 'TBD', status: 'unvisited' })) {
-      linksAdded++;
+  const totalActions = actionLog.length;
+  const failedActions = actionLog.filter(a => a.status === 'failure');
+  const successRate = totalActions > 0 ? ((totalActions - failedActions.length) / totalActions) * 100 : 100;
+  
+  const visitedNodes: IANode[] = [];
+  function collectVisitedNodes(node: IANode) {
+    if (node.status === 'visited' || node.status === 'in-progress' || node.title === 'GOTO_FAILED') {
+      visitedNodes.push(node);
     }
+    node.children.forEach(collectVisitedNodes);
   }
-  if (linksAdded > 0) {
-    console.log(`🗺️  ${linksAdded}개의 새로운 링크를 발견하여 IA에 추가했습니다.`);
+  collectVisitedNodes(ia);
+
+  let report = `# QA 테스트 자동화 보고서\n\n`;
+  report += `**테스트 시작:** ${startTime.toLocaleString()}\n`;
+  report += `**테스트 종료:** ${endTime.toLocaleString()} (${duration.toFixed(2)}분 소요)\n`;
+  report += `**테스트 대상:** ${ia.url}\n\n`;
+  
+  report += `## 🎯 테스트 목표 (사용자 지침)\n`;
+  report += `\`\`\`\n${instructions}\n\`\`\`\n\n`;
+
+  report += `## 📊 테스트 통계\n`;
+  report += `| 항목 | 수치 |\n`;
+  report += `| :--- | :--- |\n`;
+  report += `| 방문한 페이지 수 | ${visitedNodes.length} |\n`;
+  report += `| 수행한 총 액션 수 | ${totalActions} |\n`;
+  report += `| 성공한 액션 | ${totalActions - failedActions.length} |\n`;
+  report += `| **실패한 액션 (버그)** | **${failedActions.length}** |\n`;
+  report += `| 성공률 | ${successRate.toFixed(2)}% |\n\n`;
+
+  if (failedActions.length > 0) {
+    report += `## 🐞 발견된 버그 및 오류\n\n`;
+    failedActions.forEach(log => {
+      report += `### ❌ ${log.action.description}\n`;
+      report += `- **페이지:** [${log.pageTitle}](${log.pageUrl})\n`;
+      report += `- **시나리오:** ${log.scenario}\n`;
+      report += `- **오류 메시지:** \`${log.error}\`\n\n`;
+    });
+  }
+
+  report += `## 📋 페이지별 상세 실행 로그\n\n`;
+  const actionsByPage = new Map<string, ActionLogEntry[]>();
+  actionLog.forEach(log => {
+    const pageKey = `${log.pageUrl} (${log.pageTitle})`;
+    if (!actionsByPage.has(pageKey)) {
+      actionsByPage.set(pageKey, []);
+    }
+    actionsByPage.get(pageKey)?.push(log);
+  });
+
+  for (const [pageKey, logs] of actionsByPage.entries()) {
+    report += `### 📄 ${pageKey}\n\n`;
+    logs.forEach(log => {
+      const statusIcon = log.status === 'success' ? '✅' : '❌';
+      report += `- **[${log.status.toUpperCase()}]** ${statusIcon} ${log.action.description}\n`;
+      if(log.status === 'failure') {
+        report += `  - **에러:** ${log.error}\n`;
+      }
+    });
+    report += `\n`;
+  }
+  
+  try {
+    const reportPath = path.join(__dirname, '..', 'QA-Report.md');
+    await fs.writeFile(reportPath, report);
+    console.log(`✅ QA 보고서가 'QA-Report.md' 파일로 생성되었습니다.`);
+  } catch (error) {
+    console.error('❌ QA 보고서 파일 생성에 실패했습니다.', error);
+  }
+}
+
+async function discoverAndAddLinks(page: Page, ia: IANode, currentNode: IANode) {
+  try {
+    const newLinks = await page.evaluate((baseUrl: string) => {
+      const baseHostname = new URL(baseUrl).hostname;
+      return Array.from(document.querySelectorAll('a[href]')).map(el => (el as HTMLAnchorElement).href)
+        .filter(href => {
+          try {
+            if (!href || href.startsWith('javascript:') || href.endsWith('#')) return false;
+            const url = new URL(href);
+            return url.hostname.endsWith(baseHostname);
+          } catch (e) {
+            return false;
+          }
+        });
+    }, currentNode.url);
+
+    let linksAdded = 0;
+    for (const link of newLinks) {
+      if (addNodeToIA(ia, currentNode.url, { url: link, title: 'TBD', status: 'unvisited' })) {
+        linksAdded++;
+      }
+    }
+    if (linksAdded > 0) {
+      console.log(`🗺️  ${linksAdded}개의 새로운 링크를 발견하여 IA에 추가했습니다.`);
+    }
+  } catch(e: any) {
+    console.warn(`링크 발견 중 오류 발생: ${e.message}`);
   }
 }
 
@@ -183,7 +302,7 @@ async function loadTestContext(): Promise<{ email: string; password: string; ins
     return {
       email: emailMatch ? emailMatch[1].trim() : '',
       password: passwordMatch ? passwordMatch[1].trim() : '',
-      instructions: instructionsMatch ? instructionsMatch[1].trim() : 'Explore and test all features comprehensively.'
+      instructions: instructionsMatch ? (instructionsMatch[1].trim() || 'Explore and test all features comprehensively.') : 'Explore and test all features comprehensively.'
     };
   } catch (error) {
     console.warn('⚠️ 경고: test-context.md 파일을 찾을 수 없습니다.');
@@ -200,61 +319,62 @@ async function getInteractiveElements(page: Page): Promise<any[]> {
 
   const allLocators = await page.locator(selectors).all();
 
-  const elements = [];
+  const elementsData = [];
+
   for (const locator of allLocators) {
-    const isVisible = await locator.isVisible();
-    if (!isVisible) continue;
+      try {
+          const isVisible = await locator.isVisible({ timeout: 100 });
+          if (!isVisible) continue;
 
-    const tagName = await locator.evaluate(el => el.tagName.toLowerCase());
-    const role = (await locator.getAttribute('role')) || tagName;
-    
-    let value = '';
-    if (['input', 'textarea', 'select'].includes(tagName)) {
-      value = await locator.inputValue();
-    }
+          const tagName = await locator.evaluate(el => el.tagName.toLowerCase());
+          const role = (await locator.getAttribute('role')) || tagName;
+          
+          let value = '';
+          if (['input', 'textarea', 'select'].includes(tagName)) {
+              value = await locator.inputValue();
+          }
 
-    const name = (
-      await locator.getAttribute('aria-label') ||
-      await locator.innerText() ||
-      value ||
-      await locator.getAttribute('placeholder') ||
-      ''
-    ).trim().replace(/\s+/g, ' ');
+          const name = (
+              await locator.getAttribute('aria-label') ||
+              await locator.innerText() ||
+              value ||
+              await locator.getAttribute('placeholder') ||
+              ''
+          ).trim().replace(/\s+/g, ' ');
 
-    let genLocator = '';
-    const id = await locator.getAttribute('id');
-    const dataTestId = await locator.getAttribute('data-testid');
-    const type = await locator.getAttribute('type');
-    const placeholder = await locator.getAttribute('placeholder');
+          let genLocator = '';
+          const id = await locator.getAttribute('id');
+          const dataTestId = await locator.getAttribute('data-testid');
+          const type = await locator.getAttribute('type');
+          const placeholder = await locator.getAttribute('placeholder');
 
-    if (id) {
-      genLocator = `#${id}`;
-    } else if (dataTestId) {
-      genLocator = `[data-testid="${dataTestId}"]`;
-    } else if (type === 'password') {
-      genLocator = 'input[type="password"]';
-    } else if (placeholder) {
-      genLocator = `${role}[placeholder="${placeholder.replace(/"/g, '\\"')}"]`;
-    } else {
-      genLocator = `${role}:has-text("${name.substring(0, 50).replace(/"/g, '\\"')}")`;
-    }
+          if (id) {
+              genLocator = `#${id}`;
+          } else if (dataTestId) {
+              genLocator = `[data-testid="${dataTestId}"]`;
+          } else if (type === 'password') {
+              genLocator = 'input[type="password"]';
+          } else if (placeholder) {
+              genLocator = `${role}[placeholder="${placeholder.replace(/"/g, '\\"')}"]`;
+          } else {
+              genLocator = `${role}:has-text("${name.substring(0, 50).replace(/"/g, '\\"')}")`;
+          }
 
-    elements.push({ role, name, locator: genLocator });
+          elementsData.push({ role, name, locator: genLocator });
+      } catch (e) {
+          // Ignore elements that cause errors during inspection
+          // console.warn(`Could not inspect element: ${e.message}`);
+      }
   }
 
-  // console.log('--- Raw Elements ---');
-  // console.log(JSON.stringify(elements.map(e => e.locator), null, 2));
-
-
-  // Post-process to handle duplicate locators
   const locatorCounts = new Map<string, number>();
-  elements.forEach(el => {
+  elementsData.forEach(el => {
     locatorCounts.set(el.locator, (locatorCounts.get(el.locator) || 0) + 1);
   });
 
   const processedElements: any[] = [];
   const locatorIndices = new Map<string, number>();
-  for (const element of elements) {
+  for (const element of elementsData) {
     const count = locatorCounts.get(element.locator);
     if (count && count > 1) {
       const currentIndex = locatorIndices.get(element.locator) || 0;
@@ -265,10 +385,6 @@ async function getInteractiveElements(page: Page): Promise<any[]> {
       processedElements.push(element);
     }
   }
-
-  // console.log('--- Processed Elements ---');
-  // console.log(JSON.stringify(processedElements.map(e => e.locator), null, 2));
-
 
   for (let i = processedElements.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -282,7 +398,8 @@ function createAgentPrompt(
   testContext: { instructions: string },
   elements: any[],
   currentScenario: string | null,
-  pageActionHistory: AiResponse['action'][]
+  pageActionHistory: AiResponse['action'][],
+  isLoggedIn: boolean
 ): string {
   const scenarioStatus = currentScenario 
     ? `You are currently in the middle of this scenario: "${currentScenario}". Your task is to decide the next single action to continue it.`
@@ -307,6 +424,7 @@ ${testContext.instructions}
 
 **[Your Current State]**
 - Current Page URL: ${currentNode.url}
+- Login Status: ${isLoggedIn ? 'You are considered logged in. Do not try to log in again.' : 'You are not logged in.'}
 - Scenario Status: ${scenarioStatus}
 ${historySection}
 **[Interactive Elements on Current Page]**

@@ -13,20 +13,7 @@
       "url": "https://eposo.ai/#/epic/0",
       "title": "EPOSO: The New Standard in IT Project Management",
       "status": "visited",
-      "children": [
-        {
-          "url": "https://eposo.ai/#/join",
-          "title": "EPOSO: The New Standard in IT Project Management",
-          "status": "visited",
-          "children": []
-        },
-        {
-          "url": "https://eposo.ai/#/find/password",
-          "title": "EPOSO: The New Standard in IT Project Management",
-          "status": "visited",
-          "children": []
-        }
-      ]
+      "children": []
     },
     {
       "url": "https://eposo.ai/#/timeline/0",
@@ -48,12 +35,6 @@
     },
     {
       "url": "https://eposo.ai/#/setting",
-      "title": "EPOSO: The New Standard in IT Project Management",
-      "status": "visited",
-      "children": []
-    },
-    {
-      "url": "https://eposo.ai/#/login",
       "title": "EPOSO: The New Standard in IT Project Management",
       "status": "visited",
       "children": []
