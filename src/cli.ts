@@ -152,8 +152,14 @@ async function main() {
                 }
                 await page.waitForTimeout(3000);
             } catch(e: any) {
-                console.error(`❌ 행동 '${description}' 실패: ${e.message}`);
+                const errorMessage = e.message.split('\\n')[0];
+                console.error(`❌ 행동 '${description}' 실패: ${errorMessage}`);
                 if(currentNode) currentNode.status = 'failed';
+                
+                const lastAction = actionHistory[actionHistory.length - 1];
+                if (lastAction) {
+                    lastAction.description = `${lastAction.description} -- ACTION FAILED: ${errorMessage}`;
+                }
             }
         } else if (aiResponse.decision === 'crawl') {
             await crawlSite(page, iaTree, startUrl);
