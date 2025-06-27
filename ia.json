@@ -1,6 +1,57 @@
 {
-  "url": "https://eposo.ai",
-  "title": "Root",
-  "status": "unvisited",
-  "children": []
+  "url": "https://ssg.com",
+  "title": "믿고 사는 즐거움 SSG.COM",
+  "status": "visited",
+  "children": [
+    {
+      "url": "https://www.google.com/",
+      "title": "Google",
+      "status": "visited",
+      "children": []
+    },
+    {
+      "url": "https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fq%3DPlaywright%26sca_esv%3D000223f181a12c46%26source%3Dhp%26ei%3DapheaNXrGq_91e8Pt93vyQo%26iflsig%3DAOw8s4IAAAAAaF6mek_cl3KZDfmuu4NeJDtiGXiHlMEU%26ved%3D0ahUKEwjVyLjJ1pGOAxWvfvUHHbfuO6kQ4dUDCA8%26oq%3DPlaywright%26gs_lp%3DEgdnd3Mtd2l6IgpQbGF5d3JpZ2h0MggQABiABBixAzILEAAYgAQYsQMYgwEyBRAAGIAEMgUQABiABDIFEAAYgAQyBRAAGIAEMgUQABiABDIFEAAYgAQyBRAAGIAEMgUQABiABEj5JVAAWABwAHgAkAEAmAFvoAFvqgEDMC4xuAEMyAEA-AEBmAIBoAJ2mAMAkgcDMC4xoAfhBLIHAzAuMbgHdsIHAzItMcgHBg%26sclient%3Dgws-wiz%26sei%3Dc5heaM-lNLvH1e8Pz-Hw6AE&q=EgTdmyxYGPSw-sIGIjDppCbjSR1pXMKaQYJQdhQNc3Hr9og2QOFW129J1juyZ-PX5OM0jmgDvs1XMKWHqAQyAVJaAUM",
+      "title": "https://www.google.com/search?q=Playwright&sca_esv=000223f181a12c46&source=hp&ei=apheaNXrGq_91e8Pt93vyQo&iflsig=AOw8s4IAAAAAaF6mek_cl3KZDfmuu4NeJDtiGXiHlMEU&ved=0ahUKEwjVyLjJ1pGOAxWvfvUHHbfuO6kQ4dUDCA8&oq=Playwright&gs_lp=Egdnd3Mtd2l6IgpQbGF5d3JpZ2h0MggQABiABBixAzILEAAYgAQYsQMYgwEyBRAAGIAEMgUQABiABDIFEAAYgAQyBRAAGIAEMgUQABiABDIFEAAYgAQyBRAAGIAEMgUQABiABEj5JVAAWABwAHgAkAEAmAFvoAFvqgEDMC4xuAEMyAEA-AEBmAIBoAJ2mAMAkgcDMC4xoAfhBLIHAzAuMbgHdsIHAzItMcgHBg&sclient=gws-wiz&sei=c5heaM-lNLvH1e8Pz-Hw6AE",
+      "status": "visited",
+      "children": [
+        {
+          "url": "https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fq%3DPlaywright%26sca_esv%3D000223f181a12c46%26source%3Dhp%26ei%3DapheaNXrGq_91e8Pt93vyQo%26iflsig%3DAOw8s4IAAAAAaF6mek_cl3KZDfmuu4NeJDtiGXiHlMEU%26ved%3D0ahUKEwjVyLjJ1pGOAxWvfvUHHbfuO6kQ4dUDCA8%26oq%3DPlaywright%26gs_lp%3DEgdnd3Mtd2l6IgpQbGF5d3JpZ2h0MggQABiABBixAzILEAAYgAQYsQMYgwEyBRAAGIAEMgUQABiABDIFEAAYgAQyBRAAGIAEMgUQABiABDIFEAAYgAQyBRAAGIAEMgUQABiABEj5JVAAWABwAHgAkAEAmAFvoAFvqgEDMC4xuAEMyAEA-AEBmAIBoAJ2mAMAkgcDMC4xoAfhBLIHAzAuMbgHdsIHAzItMcgHBg%26sclient%3Dgws-wiz%26sei%3Dc5heaM-lNLvH1e8Pz-Hw6AE&q=EgTdmyxYGPSw-sIGIjDppCbjSR1pXMKaQYJQdhQNc3Hr9og2QOFW129J1juyZ-PX5OM0jmgDvs1XMKWHqAQyAVJaAUM#",
+          "title": "",
+          "status": "unvisited",
+          "children": []
+        },
+        {
+          "url": "https://www.google.com/policies/terms/",
+          "title": "",
+          "status": "unvisited",
+          "children": []
+        }
+      ]
+    },
+    {
+      "url": "https://eposo.ai/#/",
+      "title": "EPOSO: The New Standard in IT Project Management",
+      "status": "visited",
+      "children": []
+    },
+    {
+      "url": "https://eposo.ai/#/login",
+      "title": "EPOSO: The New Standard in IT Project Management",
+      "status": "visited",
+      "children": [
+        {
+          "url": "https://eposo.ai/#/join",
+          "title": "",
+          "status": "unvisited",
+          "children": []
+        },
+        {
+          "url": "https://eposo.ai/#/find/password",
+          "title": "",
+          "status": "unvisited",
+          "children": []
+        }
+      ]
+    }
+  ]
 }

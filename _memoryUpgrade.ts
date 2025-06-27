@@ -1,3 +1,134 @@
+import * as fs from 'fs';
+import * as path from 'path';
+
+// ==================================================================
+// 1. ai.service.ts 최종본
+// ==================================================================
+const aiServiceContent = `
+import axios from 'axios';
+import { config } from 'dotenv';
+import { Action } from './cli'; // Import Action from cli.ts
+
+config();
+
+export interface AiActionResponse {
+  decision: 'act' | 'crawl' | 'finish';
+  reasoning: string;
+  action: Action;
+}
+
+export async function nurieRequest(prompt: string, chatId?: string): Promise<any> {
+  const apiKey = process.env.NURIE_API_KEY;
+  if (!apiKey) {
+    throw new Error('NURIE_API_KEY is not set in the environment variables.');
+  }
+  const requestBody = { question: prompt, chatId };
+  const requestConfig = {
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      Authorization: \`Bearer \${apiKey}\`,
+    },
+  };
+  try {
+    const response = await axios.post(process.env.NURIE_API as string, requestBody, requestConfig);
+    return response.data;
+  } catch (error: any) {
+    console.error('AI 요청 실패:', error.response?.status, error.response?.data);
+    throw new Error(\`Request failed with status code \${error.response?.status}\`);
+  }
+}
+
+export function createAgentPrompt(
+  iaString: string,
+  pageUrl: string,
+  pageTitle: string,
+  elementsString: string,
+  testContext: string,
+  actionHistory: Action[],
+  isStuck: boolean,
+): string {
+  const contextPrompt = testContext
+    ? \`
+[Your Goal]
+You have a specific mission. Analyze the user's request and the current screen to achieve the goal.
+---
+\${testContext}
+---
+\`
+    : \`[Your Goal]
+Your primary goal is to explore the given website URL, understand its structure, and test its functionalities.\`;
+
+  const historyPrompt = actionHistory.length > 0
+    ? \`
+[Action History]
+You have already performed these actions. Learn from them. Do not repeat the same action if it is not producing results.
+---\n\${actionHistory.map((a, i) => \`Step \${i+1}: \${a.description}\`).join('\n')}\n---
+\`
+    : '';
+
+  const stuckPrompt = isStuck
+    ? \`
+[IMPORTANT]
+You seem to be stuck in a loop repeating the same action. You MUST try a different action. For example, after typing in a search bar, you should probably click the search button.
+\`
+    : '';
+
+  return \`
+You are a superhuman QA agent. You think step-by-step.
+\${stuckPrompt}
+\${contextPrompt}
+\${historyPrompt}
+
+[Current State]
+- URL: \${pageUrl}
+- Title: \${pageTitle}
+- IA Map: \${iaString}
+- Interactive Elements: \${elementsString}
+
+[Your Task]
+1.  **Analyze Goal & History:** What is your main objective? What have you already tried?
+2.  **Analyze State:** Where are you now? What can you interact with?
+3.  **Reason Step-by-Step:** Based on all the information above, what is the single most logical next action?
+4.  **Decide & Formulate:** Choose a decision ('act', 'crawl', 'finish') and create the corresponding action object.
+
+[Output Format]
+You MUST respond ONLY with a single JSON object in a markdown block. Provide all fields, including 'reasoning'.
+
+**Example (Typing into search bar):**
+\\\`\\\`\\\`json
+{
+  "decision": "act",
+  "reasoning": "The goal is to search. I see a search input, so I will type into it first.",
+  "action": { "type": "type", "locator": "textarea[aria-label='Search']", "value": "Playwright", "description": "Type 'Playwright' into the search bar." }
+}
+\\\`\\\`\\\`
+**Example (Clicking search button AFTER typing):**
+\\\`\\\`\\\`json
+{
+  "decision": "act",
+  "reasoning": "I have already typed 'Playwright' into the search bar. Now I need to click the search button to proceed.",
+  "action": { "type": "click", "locator": "input[aria-label='Google Search']", "description": "Click the Google Search button." }
+}
+\\\`\\\`\\\`
+\`;
+}
+
+export function parseAiActionResponse(responseText: string): AiActionResponse {
+  try {
+    const jsonMatch = responseText.match(/\\\`\\\`\\\`json\\s*([\\s\\S]*?)\\s*\\\`\\\`\\\`/);
+    if (!jsonMatch || !jsonMatch[1]) throw new Error('No JSON code block found in the AI response.');
+    return JSON.parse(jsonMatch[1]) as AiActionResponse;
+  } catch (e: any) {
+    console.error("Failed to parse AI action response JSON. Error:", e, "Original Response:", responseText);
+    throw new Error("Failed to parse AI action response.");
+  }
+}
+`;
+
+// ==================================================================
+// 2. cli.ts 최종본
+// ==================================================================
+const cliContent = `
 import { chromium, Page } from 'playwright';
 import { config } from 'dotenv';
 import * as fs from 'fs';
@@ -30,18 +161,18 @@ async function getInteractiveElements(page: Page) {
     );
     for (const el of elements) {
         if (el['aria-label']) {
-            el.locator = `${el.tag}[aria-label='${el['aria-label']}']`;
+            el.locator = \`\${el.tag}[aria-label='\${el['aria-label']}']\`;
         } else if (el.text) {
-            el.locator = `${el.tag}:has-text('${el.text}')`;
+            el.locator = \`\${el.tag}:has-text('\${el.text}')\`;
         } else if (el.placeholder) {
-            el.locator = `${el.tag}[placeholder='${el.placeholder}']`;
+            el.locator = \`\${el.tag}[placeholder='\${el.placeholder}']\`;
         }
     }
     return elements;
 }
 
 async function crawlSite(page: Page, iaTree: IANode, baseUrl: string) {
-    console.log(`🗺️  Crawling page: ${page.url()}`);
+    console.log(\`🗺️  Crawling page: \${page.url()}\`);
     const links = await page.evaluate(() => Array.from(document.querySelectorAll('a')).map(a => a.href));
     const origin = new URL(baseUrl).origin;
     for (const link of links) {
@@ -76,15 +207,13 @@ async function main() {
     const browser = await chromium.launch({ headless: false });
     const browserContext = await browser.newContext();
     const page = await browserContext.newPage();
-    await page.goto(startUrl, { waitUntil: 'load', timeout: 60000 });
+    await page.goto(startUrl, { waitUntil: 'networkidle', timeout: 60000 });
 
     const actionHistory: Action[] = [];
-    let chatId: string | undefined = undefined;
     let step = 0;
     while (true) {
         step++;
-        console.log(`
->>>>> [ 스텝 ${step} ] <<<<< `);
+        console.log(\`\n>>>>> [ 스텝 \${step} ] <<<<< \`);
 
         const pageUrl = page.url();
         let currentNode = findNodeByUrl(iaTree, pageUrl);
@@ -107,16 +236,10 @@ async function main() {
         const prompt = createAgentPrompt(iaString, pageUrl, currentNode?.title ?? '', elementsString, testContext, actionHistory, isStuck);
 
         console.log('🤖 AI에게 현재 상황에서 최선의 행동을 묻습니다...');
-        const aiRawResponse = await nurieRequest(prompt, chatId);
-
+        const aiRawResponse = await nurieRequest(prompt);
         if (!aiRawResponse || !aiRawResponse.text) {
             console.error('❌ AI로부터 유효한 응답을 받지 못했습니다.');
             continue;
-        }
-
-        if (!chatId && aiRawResponse.chatId) {
-            chatId = aiRawResponse.chatId;
-            console.log(`🤝 새로운 대화 세션을 시작합니다. Chat ID: ${chatId}`);
         }
 
         let aiResponse;
@@ -127,15 +250,15 @@ async function main() {
             continue;
         }
         
-        console.log(`🧠 AI의 판단: ${aiResponse.reasoning}`);
-        console.log(`▶️  실행: ${aiResponse.action.description}`);
+        console.log(\`🧠 AI의 판단: \${aiResponse.reasoning}\`);
+        console.log(\`▶️  실행: \${aiResponse.action.description}\`);
         actionHistory.push(aiResponse.action);
 
         if (aiResponse.decision === 'finish') {
             console.log('✅ AI가 작업을 완료했습니다.');
             if (aiResponse.action.type === 'generate_report') {
                 fs.writeFileSync(reportFilePath, aiResponse.action.description, 'utf-8');
-                console.log(`📝 QA 보고서가 ${reportFilePath}에 저장되었습니다.`);
+                console.log(\`📝 QA 보고서가 \${reportFilePath}에 저장되었습니다.\`);
             }
             break;
         }
@@ -152,7 +275,7 @@ async function main() {
                 }
                 await page.waitForTimeout(3000);
             } catch(e: any) {
-                console.error(`❌ 행동 '${description}' 실패: ${e.message}`);
+                console.error(\`❌ 행동 '\${description}' 실패: \${e.message}\`);
                 if(currentNode) currentNode.status = 'failed';
             }
         } else if (aiResponse.decision === 'crawl') {
@@ -170,3 +293,16 @@ main().catch(err => {
     console.error('모든 작업 실패:', err);
     process.exit(1);
 });
+`;
+
+try {
+    const aiServicePath = path.join(__dirname, 'src', 'ai.service.ts');
+    fs.writeFileSync(aiServicePath, aiServiceContent.trim(), 'utf8');
+    console.log('Successfully upgraded src/ai.service.ts');
+
+    const cliPath = path.join(__dirname, 'src', 'cli.ts');
+    fs.writeFileSync(cliPath, cliContent.trim(), 'utf8');
+    console.log('Successfully upgraded src/cli.ts');
+} catch (err) {
+    console.error('Error writing files:', err);
+} 

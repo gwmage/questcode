@@ -3,7 +3,7 @@ import * as fs from 'fs/promises';
 export interface IANode {
   url: string;
   title: string;
-  status: 'unvisited' | 'in-progress' | 'visited';
+  status: 'unvisited' | 'in-progress' | 'visited' | 'failed';
   children: IANode[];
 }
 
