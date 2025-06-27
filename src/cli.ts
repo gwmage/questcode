@@ -152,7 +152,7 @@ async function main() {
                 }
                 await page.waitForTimeout(3000);
             } catch(e: any) {
-                const errorMessage = e.message.split('\\n')[0];
+                const errorMessage = e.message.split('\\n')[0].replace(/"/g, "'").replace(/\\/g, ''); // Sanitize for JSON
                 console.error(`❌ 행동 '${description}' 실패: ${errorMessage}`);
                 if(currentNode) currentNode.status = 'failed';
                 
