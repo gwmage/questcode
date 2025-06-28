@@ -1,13 +1,15 @@
 import axios from 'axios';
 import { config } from 'dotenv';
 import { Action } from './cli';
+import * as fs from 'fs';
+import * as path from 'path';
 
 config();
 
 export interface AiActionResponse {
   decision: 'act' | 'crawl' | 'finish';
   reasoning: string;
-  action: Action;
+  action: Action | null; // Can be null for 'finish'
 }
 
 export async function nurieRequest(prompt: string, chatId?: string): Promise<any> {
@@ -24,12 +26,15 @@ export async function nurieRequest(prompt: string, chatId?: string): Promise<any
   };
   try {
     const response = await axios.post(process.env.NURIE_API as string, requestBody, requestConfig);
+    console.log('Full AI Response Data:', JSON.stringify(response.data, null, 2)); // Added for debugging
     return response.data;
   } catch (error: any) {
     console.error('AI 요청 실패:', error.response?.status, error.response?.data);
     throw new Error(`Request failed with status code ${error.response?.status}`);
   }
 }
+
+let promptTemplate: string | null = null;
 
 export function createAgentPrompt(
   iaString: string,
@@ -40,6 +45,13 @@ export function createAgentPrompt(
   actionHistory: Action[],
   isStuck: boolean,
 ): string {
+
+  if (!promptTemplate) {
+    promptTemplate = fs.readFileSync(path.join(__dirname, 'prompt.txt'), 'utf-8');
+  }
+
+  const recentHistory = actionHistory.slice(-15);
+
   const contextPrompt = testContext
     ? `
 [Your Goal]
@@ -51,12 +63,12 @@ ${testContext}
     : `[Your Goal]
 Your primary goal is to explore the given website URL, understand its structure, and test its functionalities.`;
 
-  const historyPrompt = actionHistory.length > 0
+  const historyPrompt = recentHistory.length > 0
     ? `
 [Action History]
 You have already performed these actions. Learn from them. Do not repeat the same action if it is not producing results.
 ---
-${actionHistory.map((a, i) => `Step ${i+1}: ${a.description}`).join('\n')}
+${recentHistory.map((a, i) => `Step ${actionHistory.length - recentHistory.length + i + 1}: ${a.description}`).join('\n')}
 ---
 `
     : '';
@@ -64,54 +76,55 @@ ${actionHistory.map((a, i) => `Step ${i+1}: ${a.description}`).join('\n')}
   const stuckPrompt = isStuck
     ? `
 [IMPORTANT]
-You seem to be stuck in a loop repeating the same action. You MUST try a different action. For example, after typing in a search bar, you should probably click the search button.
+You seem to be stuck in a loop repeating the same action. You MUST try a different action.
 `
     : '';
+  
+  let prompt = promptTemplate;
+  prompt = prompt.replace('{stuckPrompt}', stuckPrompt);
+  prompt = prompt.replace('{contextPrompt}', contextPrompt);
+  prompt = prompt.replace('{historyPrompt}', historyPrompt);
+  prompt = prompt.replace('{pageUrl}', pageUrl);
+  prompt = prompt.replace('{pageTitle}', pageTitle);
+  prompt = prompt.replace('{iaString}', iaString);
+  prompt = prompt.replace('{elementsString}', elementsString);
 
-  return `
-You are a superhuman QA agent. You think step-by-step.
-${stuckPrompt}
-${contextPrompt}
-${historyPrompt}
-
-[Current State]
-- URL: ${pageUrl}
-- Title: ${pageTitle}
-- IA Map: ${iaString}
-- Interactive Elements: ${elementsString}
-
-[Your Task]
-1.  **Analyze Goal & History:** What is your main objective? What have you already tried?
-2.  **Analyze State:** Where are you now? What can you interact with?
-3.  **Reason Step-by-Step:** Based on all the information above, what is the single most logical next action?
-4.  **Decide & Formulate:** Choose a decision ('act', 'crawl', 'finish') and create the corresponding action object.
-
-[Output Format]
-You MUST respond ONLY with a single JSON object in a markdown block. Provide all fields, including 'reasoning'.
-
-**Example (Typing into search bar):**
-\`\`\`json
-{
-  "decision": "act",
-  "reasoning": "The goal is to search. I see a search input, so I will type into it first.",
-  "action": { "type": "type", "locator": "textarea[aria-label='Search']", "value": "Playwright", "description": "Type 'Playwright' into the search bar." }
+  return prompt;
 }
-\`\`\`
-**Example (Clicking search button AFTER typing):**
-\`\`\`json
-{
-  "decision": "act",
-  "reasoning": "I have already typed 'Playwright' into the search bar. Now I need to click the search button to proceed.",
-  "action": { "type": "click", "locator": "input[aria-label='Google Search']", "description": "Click the Google Search button." }
+
+let reportPromptTemplate: string | null = null;
+
+export function createReport(testContext: string, actionHistory: Action[]): string {
+  if (!reportPromptTemplate) {
+    reportPromptTemplate = fs.readFileSync(path.join(__dirname, 'report_prompt.txt'), 'utf-8');
+  }
+
+  const historyString = actionHistory
+    .map((a, i) => {
+      let log = `Step ${i + 1}: ${a.description}`;
+      if (a.error) {
+        log += `\n  - Error: ${a.error}`;
+      }
+      return log;
+    })
+    .join('\n');
+
+  let prompt = reportPromptTemplate;
+  prompt = prompt.replace('{testContext}', testContext);
+  prompt = prompt.replace('{actionHistory}', historyString);
+  return prompt;
 }
-\`\`\`
-`;
-}
+
 
 export function parseAiActionResponse(responseText: string): AiActionResponse {
   try {
+    if (!responseText) {
+      throw new Error('AI response text is empty or undefined.');
+    }
     const jsonMatch = responseText.match(/\`\`\`json\s*([\s\S]*?)\s*\`\`\`/);
-    if (!jsonMatch || !jsonMatch[1]) throw new Error('No JSON code block found in the AI response.');
+    if (!jsonMatch || !jsonMatch[1]) {
+      return JSON.parse(responseText) as AiActionResponse;
+    };
     return JSON.parse(jsonMatch[1]) as AiActionResponse;
   } catch (e: any) {
     console.error("Failed to parse AI action response JSON. Error:", e, "Original Response:", responseText);

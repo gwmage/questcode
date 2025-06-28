@@ -32,7 +32,38 @@
       "url": "https://eposo.ai/#/",
       "title": "EPOSO: The New Standard in IT Project Management",
       "status": "visited",
-      "children": []
+      "children": [
+        {
+          "url": "https://eposo.ai/#/dashboard/0",
+          "title": "",
+          "status": "unvisited",
+          "children": []
+        },
+        {
+          "url": "https://eposo.ai/#/epic/0",
+          "title": "",
+          "status": "unvisited",
+          "children": []
+        },
+        {
+          "url": "https://eposo.ai/#/timeline/0",
+          "title": "",
+          "status": "unvisited",
+          "children": []
+        },
+        {
+          "url": "https://eposo.ai/#/calculate/expert/0",
+          "title": "",
+          "status": "unvisited",
+          "children": []
+        },
+        {
+          "url": "https://eposo.ai/#/doclist/0",
+          "title": "",
+          "status": "unvisited",
+          "children": []
+        }
+      ]
     },
     {
       "url": "https://eposo.ai/#/login",
@@ -57,6 +88,43 @@
       "url": "https://eposo.ai/#/setting",
       "title": "EPOSO: The New Standard in IT Project Management",
       "status": "failed",
+      "children": []
+    },
+    {
+      "url": "https://eposo.ai/#/dashboard/1",
+      "title": "EPOSO: The New Standard in IT Project Management",
+      "status": "visited",
+      "children": [
+        {
+          "url": "https://eposo.ai/#/epic/1",
+          "title": "",
+          "status": "unvisited",
+          "children": []
+        },
+        {
+          "url": "https://eposo.ai/#/timeline/1",
+          "title": "",
+          "status": "unvisited",
+          "children": []
+        },
+        {
+          "url": "https://eposo.ai/#/calculate/expert/1",
+          "title": "",
+          "status": "unvisited",
+          "children": []
+        },
+        {
+          "url": "https://eposo.ai/#/doclist/1",
+          "title": "",
+          "status": "unvisited",
+          "children": []
+        }
+      ]
+    },
+    {
+      "url": "https://eposo.ai/#/instruction/new-register",
+      "title": "EPOSO: The New Standard in IT Project Management",
+      "status": "visited",
       "children": []
     }
   ]

@@ -1,35 +1,9 @@
-# AI Agent QA 보고서
+# QA Report for eposo.ai
 
-## 프로젝트 개요
+## Summary
+**Test Failed.** The agent successfully logged in but was unable to create a project due to unresponsive UI elements. All attempts to click or use the keyboard to activate the '추가\n프로젝트 추가' button resulted in timeouts.
 
-본 프로젝트는 TypeScript와 Playwright를 기반으로 한 AI 에이전트를 개발하여, `ssg.com` 웹사이트를 자율적으로 탐색하고 테스트하는 것을 목표로 합니다.
-
-## 핵심 기능 및 개발 과정
-
-### 1. AI 주도형 탐색 (AI-led Navigation)
-
-- **문제점:** 초기 에이전트는 단순히 페이지의 모든 링크를 무한정 방문하여 비효율적이고 비용이 많이 발생했습니다.
-- **해결책:** AI가 사이트의 정보 구조(IA)를 표현하는 `ia.json` 파일을 보고, 정보가 부족하다고 판단될 때만 `crawl` 액션을 수행하도록 설계했습니다. 정보가 충분하면, IA 맵과 현재 화면을 바탕으로 가장 유의미한 행동(예: '카테고리' 버튼 클릭)을 스스로 결정합니다.
-
-### 2. 자율적 문제 해결 및 디버깅 과정
-
-개발 과정에서 다음과 같은 주요 문제들을 자율적으로 해결했습니다.
-
-- **무한 크롤링:** URL의 `#` 부분을 제거하고, 현재 탐색중인 도메인 외부 링크는 방문하지 않도록 하여 불필요한 탐색을 방지했습니다.
-- **IA 맵 업데이트 오류:** 페이지 이동으로 URL이 변경되어도, 크롤링을 시작한 원래 노드를 기준으로 링크를 추가하도록 로직을 수정하여 IA 맵이 정상적으로 확장되도록 했습니다.
-- **Playwright 로케이터 오류:** 다수의 동일한 요소가 존재할 때, Playwright가 지원하지 않는 잘못된 CSS 선택자 문법(`(locator)[index]`)이 생성되는 문제를 `locator >> nth=index` 방식으로 수정하여 해결했습니다.
-- **기타 컴파일 오류:** `ai.service.ts`의 의존성 문제, `ia.ts`의 타입 정의 누락 등 여러 컴파일 오류를 끈기 있게 수정했습니다. 특히 `edit_file` 도구가 불안정하게 동작할 때는, 임시 Helper 스크립트를 생성하여 파일을 덮어쓰는 방식으로 문제를 해결하는 창의성을 발휘했습니다.
-
-## 최종 테스트 결과
-
-**성공적으로 50단계의 자율 탐색을 완료했습니다.**
-
-- **시작:** `ia.json` 파일이 없는 깨끗한 상태에서 시작.
-- **1단계:** AI가 정보 부족을 인지하고 `crawl` 액션 수행. `ssg.com`의 다양한 링크를 수집하여 `ia.json` 생성.
-- **2단계 이후:** AI는 생성된 IA 맵과 화면을 분석하여, '전체 카테고리' 버튼 클릭 등 사이트 구조를 파악하기 위한 최적의 행동을 스스로 판단하고 실행함.
-- **완료:** 모든 오류를 극복하고 50단계의 작업을 안정적으로 완료.
-
-## 결론
-
-본 AI 에이전트는 이제 **스스로 사이트 구조를 학습(크롤링)하고, 학습된 정보를 바탕으로 다음 행동을 지능적으로 결정하는** 핵심 메커니즘을 성공적으로 갖추었습니다. 여러 번의 자율적인 디버깅과 로직 개선을 통해 안정성을 확보했으며, 이는 향후 더 복잡한 QA 시나리오를 수행할 수 있는 견고한 기반이 될 것입니다.
-
+## Details
+- **Objective 1: Log in.** - Success
+- **Objective 2: Create a new project.** - Failure
+- **Objective 3: Log out.** - Skipped
