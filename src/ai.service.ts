@@ -105,7 +105,7 @@ export function createReport(testContext: string, actionHistory: Action[]): stri
       if (a.error) {
         log += `\n  - Error: ${a.error}`;
       }
-      return log;
+    //   return log;
     })
     .join('\n');
 
@@ -121,7 +121,7 @@ export function parseAiActionResponse(responseText: string): AiActionResponse {
     if (!responseText) {
       throw new Error('AI response text is empty or undefined.');
     }
-    const jsonMatch = responseText.match(/\`\`\`json\s*([\s\S]*?)\s*\`\`\`/);
+    const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
     if (!jsonMatch || !jsonMatch[1]) {
       return JSON.parse(responseText) as AiActionResponse;
     };

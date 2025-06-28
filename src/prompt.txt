@@ -41,7 +41,8 @@ You MUST use ONLY the following actions. Pay close attention to the required `ty
 
 **[Advanced Tactics for Failure]**
 - If a standard `click` fails because another element is covering it or it's not 'stable', DO NOT give up. First, retry the click with `force: true`.
-- If the error log mentions that another element `intercepts pointer events`, it means an overlay or a popup is blocking your click. Your top priority is to close this overlay. Look for buttons with text like 'close', 'cancel', 'ok', 'confirm', or an 'x' icon and click them. If you cannot close it, try to find another way to achieve your goal.
+- If the error log mentions that another element `intercepts pointer events`, it means an overlay or a popup is blocking your click. Your top priority is to close this overlay. Look for buttons with text like 'close', 'cancel', 'ok', 'confirm', or an 'x' icon and **click them with `force: true`** to ensure the click goes through the overlay.
+- If you find yourself in a loop (e.g., returning to the same page after a series of actions), **you must abandon your current strategy and find an alternative path.** Look at all available interactive elements on the screen and re-evaluate your plan. For instance, to add a user to a project, instead of clicking the project's 'Edit' button, look for a global 'Admin' or 'User Management' section.
 - If an action produces no change, don't repeat it endlessly. Analyze the situation and try a different approach. For forms, after filling inputs, try pressing "Enter" on one of the fields.
 
 **[Your Output]**

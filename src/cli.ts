@@ -20,38 +20,33 @@ interface ActionResult {
   error?: string;
 }
 
-const testContextFilePath = path.join(__dirname, '..', 'test-context.md');
+const scenariosFilePath = path.join(__dirname, '..', 'test-scenarios.md');
 
-async function main() {
-  const targetUrl = process.argv[2];
-  if (!targetUrl) {
-    console.error('Please provide a target URL.');
-    process.exit(1);
-  }
+function getScenarioFromArgs(): string | null {
+    const scenarioArg = process.argv.find(arg => arg.startsWith('--scenario='));
+    if (scenarioArg) {
+        return scenarioArg.split('=', 2)[1];
+    }
+    return null;
+}
 
-  let testContext = '';
-  if (fs.existsSync(testContextFilePath)) {
-    testContext = fs.readFileSync(testContextFilePath, 'utf-8');
-    console.log('📝 테스트 컨텍스트를 발견했습니다:', testContextFilePath);
-  } else {
-    testContext = `Your primary goal is to explore the given website URL (${targetUrl}), understand its structure, and test its functionalities. Here are your objectives:
-1.  Log in.
-2.  Create a new project.
-3.  Log out.`
-  }
-  
+async function runTest(targetUrl: string, testContext: string) {
+  console.log(`\n🎯 테스트 목표: ${testContext}`);
   const chatId = uuidv4();
   console.log(`🤝 새로운 대화 세션을 시작합니다. Chat ID: ${chatId}`);
 
   const actionHistory: Action[] = [];
   let browser: Browser | null = null;
   let page: Page | null = null;
+  const stateHistory: string[] = [];
   
   try {
     browser = await chromium.launch({ headless: false });
     page = await browser.newPage();
     await page.goto(targetUrl);
-    await page.waitForSelector('button:has-text("Login/Sign Up")', { timeout: 15000 });
+    
+    // Initial wait might need adjustment or removal depending on general page load times.
+    await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
 
     let step = 1;
     while (step <= 100) {
@@ -64,36 +59,76 @@ async function main() {
       const elementsString = JSON.stringify(interactiveElements, null, 2);
       const iaString = "{}";
 
-      const isStuck = actionHistory.length > 3 &&
+      const currentState = `${pageUrl}::${interactiveElements.map(e => e.locator).join(',')}`;
+      stateHistory.push(currentState);
+
+      let isStuck = actionHistory.length > 3 &&
         actionHistory.slice(-3).every(a => a.description === actionHistory[actionHistory.length - 1].description);
 
-      const prompt = createAgentPrompt(
-        iaString,
-        pageUrl,
-        pageTitle,
-        elementsString,
-        testContext,
-        actionHistory,
-        isStuck
-      );
-      
+      if (!isStuck && stateHistory.length > 4) {
+        const lastFourStates = stateHistory.slice(-4);
+        if (lastFourStates[0] === lastFourStates[2] && lastFourStates[1] === lastFourStates[3]) {
+            console.warn("🚩 상태 루프 감지! (A -> B -> A -> B)");
+            isStuck = true;
+        }
+      }
+
       let aiActionResponse: AiActionResponse | null = null;
-      const maxRetries = 3;
-      for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-          console.log(`🤖 AI에게 현재 상황에서 최선의 행동을 묻습니다... (시도 ${attempt}/${maxRetries})`);
-          const aiResponseData = await nurieRequest(prompt, chatId);
-          aiActionResponse = parseAiActionResponse(aiResponseData?.text);
-          if (aiActionResponse) {
-            break; 
+
+      if (isStuck) {
+        console.log("⚡️ AI 조련사 개입: 루프 탈출을 위한 강제 행동을 생성합니다.");
+        const untriedClickActions = interactiveElements
+            .filter(el => ['a', 'button'].includes(el.type))
+            .filter(el => !actionHistory.some(a => a.locator === el.locator));
+        
+        let forcedAction: Action | null = null;
+        if (untriedClickActions.length > 0) {
+            const randomActionElement = untriedClickActions[Math.floor(Math.random() * untriedClickActions.length)];
+            forcedAction = {
+                type: 'click',
+                locator: randomActionElement.locator,
+                description: `[강제 조치] 루프를 탈출하기 위해 '${randomActionElement.name || randomActionElement.locator}'을(를) 클릭합니다.`
+            };
+            console.log(`🔨 새로운 강제 행동: ${forcedAction.description}`);
+        } else {
+            console.log("🛑 시도할 새로운 행동이 없어 테스트를 종료합니다.");
+            aiActionResponse = { decision: 'finish', reasoning: 'Stuck in a loop and no new actions to try.', action: null };
+        }
+
+        if (forcedAction) {
+            aiActionResponse = { decision: 'act', reasoning: 'Forced action to break a loop.', action: forcedAction };
+        }
+
+      }
+      
+      if (!aiActionResponse) {
+        const prompt = createAgentPrompt(
+          iaString,
+          pageUrl,
+          pageTitle,
+          elementsString,
+          testContext,
+          actionHistory,
+          isStuck
+        );
+
+        const maxRetries = 3;
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+          try {
+            console.log(`🤖 AI에게 현재 상황에서 최선의 행동을 묻습니다... (시도 ${attempt}/${maxRetries})`);
+            const aiResponseData = await nurieRequest(prompt, chatId);
+            aiActionResponse = parseAiActionResponse(aiResponseData?.text);
+            if (aiActionResponse) {
+              break; 
+            }
+          } catch (error: any) {
+            console.error(`❌ AI 응답 처리 실패 (시도 ${attempt}/${maxRetries}):`, error.message);
+            if (attempt === maxRetries) {
+              console.error('💣 AI로부터 유효한 응답을 받지 못해 테스트를 중단합니다.');
+              actionHistory.push({ type: 'finish', description: 'AI 응답 오류로 테스트 중단', error: 'AI did not provide a valid action after 3 retries.' });
+            }
+            await new Promise(resolve => setTimeout(resolve, 2000));
           }
-        } catch (error: any) {
-          console.error(`❌ AI 응답 처리 실패 (시도 ${attempt}/${maxRetries}):`, error.message);
-          if (attempt === maxRetries) {
-            console.error('💣 AI로부터 유효한 응답을 받지 못해 테스트를 중단합니다.');
-            actionHistory.push({ type: 'finish', description: 'AI 응답 오류로 테스트 중단', error: 'AI did not provide a valid action after 3 retries.' });
-          }
-          await new Promise(resolve => setTimeout(resolve, 2000));
         }
       }
 
@@ -156,7 +191,7 @@ async function main() {
     }
 
   } catch (error: any) {
-    console.error('모든 작업 실패:', error);
+    console.error('테스트 실행 중 심각한 오류 발생:', error);
   } finally {
     if (page) await page.close();
     if (browser) await browser.close();
@@ -173,6 +208,35 @@ async function main() {
     console.log(`✅ 최종 보고서가 ${reportFileName} 파일로 저장되었습니다.`);
   } catch (error) {
     console.error('❌ 최종 보고서 생성 중 오류가 발생했습니다:', error);
+  }
+}
+
+async function main() {
+  const targetUrl = process.argv[2];
+  if (!targetUrl || targetUrl.startsWith('--')) {
+    console.error('Please provide a target URL as the first argument.');
+    process.exit(1);
+  }
+
+  const singleScenario = getScenarioFromArgs();
+
+  if (singleScenario) {
+    console.log('📝 커맨드라인 인수로 받은 단일 시나리오를 테스트합니다.');
+    await runTest(targetUrl, singleScenario);
+  } else if (fs.existsSync(scenariosFilePath)) {
+    console.log(`📝 ${scenariosFilePath} 파일에서 전체 시나리오를 읽어 테스트를 시작합니다.`);
+    const scenarios = fs.readFileSync(scenariosFilePath, 'utf-8')
+      .split('\n')
+      .map(s => s.trim().replace(/^\d+\.\s*/, '')) // 숫자와 점으로 시작하는 부분 제거
+      .filter(s => s.length > 0 && !s.startsWith('#') && !s.toLowerCase().includes('here are 10'));
+
+    for (const scenario of scenarios) {
+      await runTest(targetUrl, scenario);
+    }
+    console.log('🎉 모든 테스트 시나리오 실행을 완료했습니다.');
+  } else {
+    console.error(`❌ 테스트 목표가 지정되지 않았습니다. ${scenariosFilePath} 파일을 생성하거나 --scenario 인수를 사용하세요.`);
+    process.exit(1);
   }
 }
 
