@@ -1,7 +1,7 @@
 import { Page } from 'playwright';
 
 interface InteractiveElement {
-  type: 'button' | 'link' | 'input' | 'textarea' | 'select';
+  type: 'button' | 'a' | 'input' | 'textarea' | 'select';
   name: string | null;
   locator: string;
 }
@@ -39,12 +39,11 @@ export async function getInteractiveElements(page: Page): Promise<InteractiveEle
         const ariaLabel = (await element.getAttribute('aria-label'))?.trim();
         const placeholder = (await element.getAttribute('placeholder'))?.trim();
         const nameAttr = (await element.getAttribute('name'))?.trim();
-        const typeAttr = (await element.getAttribute('type'))?.trim();
         const idAttr = (await element.getAttribute('id'))?.trim();
+        const typeAttr = (await element.getAttribute('type'))?.trim();
 
-        const name = textContent || ariaLabel || placeholder || nameAttr || idAttr || null;
+        const name = ariaLabel || textContent || placeholder || nameAttr || idAttr || null;
         
-        // Build a robust, valid Playwright locator, prioritizing unique identifiers
         let locator: string | null = null;
         
         if (idAttr) {
@@ -54,25 +53,25 @@ export async function getInteractiveElements(page: Page): Promise<InteractiveEle
         } else if (ariaLabel) {
             locator = `[aria-label="${ariaLabel}"]`;
         } else if (placeholder) {
-            locator = `[placeholder="${placeholder}"]`;
+            const sanitizedPlaceholder = placeholder.replace(/"/g, '\\"');
+            locator = `[placeholder="${sanitizedPlaceholder}"]`;
         } else if (textContent && textContent.length > 0) {
             const normalizedText = textContent.replace(/"/g, '\\"');
             locator = `${type}:has-text("${normalizedText}")`;
         } else if (typeAttr) {
-            // This is a less specific fallback
             locator = `${type}[type="${typeAttr}"]`;
         }
 
         if (locator) {
-            elements.push({
-              type,
-              name: name ? name.substring(0, 100) : null,
-              locator,
-            });
+          elements.push({
+            type,
+            name,
+            locator,
+          });
         }
       }
     }
   }
 
   return elements;
-} 
+}
