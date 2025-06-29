@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
 import * as path from 'path';
 import { AiActionResponse, createAgentPrompt, requestAiModel, parseAiActionResponse, createReport, AiModel } from './ai.service';
-import { getInteractiveElements } from './utils';
+import { getPageContext } from './utils';
 import { Action } from './types';
 
 interface ActionResult {
@@ -55,49 +55,24 @@ async function runTest(browser: Browser, targetUrl: string, testContext: string,
 
       const pageUrl = page.url();
       const pageTitle = await page.title();
-      const interactiveElements = await getInteractiveElements(page);
-      const elementsString = JSON.stringify(interactiveElements, null, 2);
+      
+      console.log("👀 페이지의 현재 상태를 분석하여 AI에게 전달할 보고서를 생성합니다...");
+      const pageContext = await getPageContext(page);
+      
       const iaString = "{}";
 
-      const currentState = `${pageUrl}::${interactiveElements.map(e => e.locator).join(',')}`;
+      const currentState = pageContext;
       stateHistory.push(currentState);
 
-      let isStuck = actionHistory.length > 3 &&
-        actionHistory.slice(-3).every(a => a.description === actionHistory[actionHistory.length - 1].description);
-
-      if (!isStuck && stateHistory.length > 4) {
-        const lastFourStates = stateHistory.slice(-4);
-        if (lastFourStates[0] === lastFourStates[2] && lastFourStates[1] === lastFourStates[3]) {
-            console.warn("🚩 상태 루프 감지! (A -> B -> A -> B)");
-            isStuck = true;
-        }
-      }
+      let isStuck = stateHistory.length > 4 &&
+        stateHistory.slice(-4)[0] === stateHistory.slice(-4)[2] &&
+        stateHistory.slice(-4)[1] === stateHistory.slice(-4)[3];
 
       let aiActionResponse: AiActionResponse | null = null;
 
       if (isStuck) {
-        console.log("⚡️ AI 조련사 개입: 루프 탈출을 위한 강제 행동을 생성합니다.");
-        const untriedClickActions = interactiveElements
-            .filter(el => ['a', 'button'].includes(el.type))
-            .filter(el => !actionHistory.some(a => a.locator === el.locator));
-        
-        let forcedAction: Action | null = null;
-        if (untriedClickActions.length > 0) {
-            const randomActionElement = untriedClickActions[Math.floor(Math.random() * untriedClickActions.length)];
-            forcedAction = {
-                type: 'click',
-                locator: randomActionElement.locator,
-                description: `[강제 조치] 루프를 탈출하기 위해 '${randomActionElement.name || randomActionElement.locator}'을(를) 클릭합니다.`
-            };
-            console.log(`🔨 새로운 강제 행동: ${forcedAction.description}`);
-        } else {
-            console.log("🛑 시도할 새로운 행동이 없어 테스트를 종료합니다.");
-            aiActionResponse = { decision: 'finish', reasoning: 'Stuck in a loop and no new actions to try.', action: null };
-        }
-
-        if (forcedAction) {
-            aiActionResponse = { decision: 'act', reasoning: 'Forced action to break a loop.', action: forcedAction };
-        }
+        console.log("⚡️ AI 조련사 개입: 루프가 감지되어 테스트를 종료합니다.");
+        aiActionResponse = { decision: 'finish', reasoning: 'Stuck in a state loop.', action: null };
       }
       
       if (!aiActionResponse) {
@@ -105,7 +80,7 @@ async function runTest(browser: Browser, targetUrl: string, testContext: string,
           iaString,
           pageUrl,
           pageTitle,
-          elementsString,
+          pageContext,
           testContext,
           actionHistory,
           isStuck
@@ -155,23 +130,25 @@ async function runTest(browser: Browser, targetUrl: string, testContext: string,
       try {
         switch (action.type) {
           case 'click':
-            await page.waitForTimeout(500);
             await page.click(action.locator!, { force: action.force, timeout: 10000 });
             break;
           case 'fill':
-          case 'type':
-            await page.waitForTimeout(500);
             await page.fill(action.locator!, action.value!);
             break;
+          case 'select':
+            await page.selectOption(action.locator!, action.value!);
+            break;
           case 'keypress':
-            await page.waitForTimeout(500);
             await page.press(action.locator!, action.key as any);
             break;
           case 'crawl':
-            await page.waitForTimeout(2000);
+            await page.waitForTimeout(1000);
             break;
         }
-        await page.waitForTimeout(1000);
+
+        console.log('⏳ 페이지 상태가 안정되기를 기다립니다...');
+        await page.waitForLoadState('domcontentloaded', { timeout: 5000 });
+        
       } catch (e: any) {
         if (e.message.includes('timeout')) {
           console.log('⏳ 페이지 로딩 시간이 초과되었지만, 계속 진행합니다.');

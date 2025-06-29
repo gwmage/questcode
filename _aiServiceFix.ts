@@ -1,7 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const correctAiServiceContent = `
+const targetPath = path.join(__dirname, 'src', 'ai.service.ts');
+
+const newContent = `
 import axios from 'axios';
 import { config } from 'dotenv';
 import { Action } from './types';
@@ -128,7 +130,7 @@ export function createAgentPrompt(
   iaString: string,
   pageUrl: string,
   pageTitle: string,
-  elementsString: string,
+  pageContext: string,
   testContext: string,
   actionHistory: Action[],
   isStuck: boolean,
@@ -175,7 +177,7 @@ You seem to be stuck in a loop repeating the same action. You MUST try a differe
   prompt = prompt.replace('{pageUrl}', pageUrl);
   prompt = prompt.replace('{pageTitle}', pageTitle);
   prompt = prompt.replace('{iaString}', iaString);
-  prompt = prompt.replace('{elementsString}', elementsString);
+  prompt = prompt.replace('{pageContext}', pageContext);
 
   return prompt;
 }
@@ -208,26 +210,53 @@ export function parseAiActionResponse(responseText: string): AiActionResponse {
     if (!responseText) {
       throw new Error('AI response text is empty or undefined.');
     }
-    const jsonMatch = responseText.match(/\\\`\\\`\\\`json\\s*([\\s\\S]*?)\\s*\\\`\\\`\\\`/);
+    const jsonMatch = responseText.match(/\\\`\\\`\\\`json([\\s\\S]*?)\\\`\\\`\\\`/);
     if (!jsonMatch || !jsonMatch[1]) {
-      // If no ```json block, try parsing the whole string directly
-      return JSON.parse(responseText) as AiActionResponse;
+      return JSON.parse(responseText);
     };
-    return JSON.parse(jsonMatch[1]) as AiActionResponse;
+    return JSON.parse(jsonMatch[1]);
   } catch (e: any) {
     console.error("Failed to parse AI action response JSON. Error:", e, "Original Response:", responseText);
     throw new Error("Failed to parse AI action response.");
   }
 }
-\`;
-
-const targetPath = path.resolve(__dirname, 'src', 'ai.service.ts');
-fs.writeFileSync(targetPath, correctAiServiceContent.trim());
-
-console.log('Successfully updated src/ai.service.ts');
 `;
 
-const filePath = path.resolve(__dirname, '_aiServiceFix.ts');
-fs.writeFileSync(filePath, correctAiServiceContent.trim());
+fs.writeFileSync(targetPath, newContent);
+console.log(\`Successfully updated \${targetPath} via _aiServiceFix.ts\`);
+`;
 
-console.log('Successfully created _aiServiceFix.ts'); 
+const scriptFilePath = path.join(__dirname, '_aiServiceFix.ts');
+const scriptContent = `
+import * as fs from 'fs';
+import * as path from 'path';
+
+const targetPath = path.join(__dirname, '..', 'src', 'ai.service.ts');
+
+try {
+    let content = fs.readFileSync(targetPath, 'utf8');
+
+    content = content.replace(
+      'createAgentPrompt(iaString, pageUrl, pageTitle, elementsString,',
+      'createAgentPrompt(iaString, pageUrl, pageTitle, pageContext,'
+    );
+    
+    content = content.replace(
+      'prompt = prompt.replace(\'{elementsString}\', elementsString);',
+      'prompt = prompt.replace(\'{pageContext}\', pageContext);'
+    );
+
+    fs.writeFileSync(targetPath, content, 'utf8');
+    console.log('src/ai.service.ts was successfully updated by _aiServiceFix.ts');
+
+} catch (error) {
+    console.error('Failed to update src/ai.service.ts:', error);
+}
+`;
+
+try {
+    fs.writeFileSync(scriptFilePath, scriptContent.trim());
+    console.log(`Successfully created the fix script: ${scriptFilePath}`);
+} catch (error) {
+    console.error(`Failed to create the fix script: ${error}`);
+} 

@@ -124,7 +124,7 @@ export function createAgentPrompt(
   iaString: string,
   pageUrl: string,
   pageTitle: string,
-  elementsString: string,
+  pageContext: string,
   testContext: string,
   actionHistory: Action[],
   isStuck: boolean,
@@ -171,7 +171,7 @@ You seem to be stuck in a loop repeating the same action. You MUST try a differe
   prompt = prompt.replace('{pageUrl}', pageUrl);
   prompt = prompt.replace('{pageTitle}', pageTitle);
   prompt = prompt.replace('{iaString}', iaString);
-  prompt = prompt.replace('{elementsString}', elementsString);
+  prompt = prompt.replace('{pageContext}', pageContext);
 
   return prompt;
 }

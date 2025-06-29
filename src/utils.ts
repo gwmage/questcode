@@ -1,77 +1,118 @@
-import { Page } from 'playwright';
+import { Page, ElementHandle } from 'playwright';
+import { PageElement, ElementType } from './types';
 
-interface InteractiveElement {
-  type: 'button' | 'a' | 'input' | 'textarea' | 'select';
-  name: string | null;
-  locator: string;
+// Simplified representation of the page's structure and content for the AI
+function simplifyDomForAi(element: PageElement): any {
+  // Recursively simplify children
+  const simplifiedChildren = element.children.map(simplifyDomForAi);
+
+  const result: any = {
+    // Use a more descriptive name for the AI, like 'tag' instead of 'type'
+    tag: element.type, 
+    name: element.name,
+    // The locator is critical for the AI to take action
+    locator: element.locator, 
+  };
+
+  // Only include children array if it's not empty
+  if (simplifiedChildren.length > 0) {
+    result.children = simplifiedChildren;
+  }
+  return result;
+}
+
+// Evaluates an element in the browser context to get its name
+function getElementName(element: ElementHandle): Promise<string> {
+  return element.evaluate((el: HTMLElement) => { // Explicitly type el as HTMLElement
+    const a = (s: string | null): string => (s || '').trim();
+    return a(el.getAttribute('aria-label')) || a(el.textContent) || a(el.getAttribute('placeholder')) || a(el.getAttribute('name')) || a(el.id);
+  });
+}
+
+// Recursively builds a tree of PageElement objects from the DOM
+async function buildElementTree(page: Page, element: ElementHandle<HTMLElement | SVGElement>, idCounter: { next: number }, parentId?: number): Promise<PageElement | null> {
+  const tagName = (await element.evaluate(el => el.tagName)).toLowerCase();
+  
+  // 1. Filter out non-essential or invisible elements
+  const isEssential = await element.evaluate((el: HTMLElement) => {
+    // Exclude non-content and non-visible elements
+    if (["script", "style", "meta", "link", "head"].includes(el.tagName.toLowerCase())) return false;
+    const style = window.getComputedStyle(el);
+    if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) < 0.1) return false;
+    // Heuristic to ignore empty, purely stylistic containers
+    if ((el.tagName === 'DIV' || el.tagName === 'SPAN') && !el.children.length && (el.textContent || '').trim().length < 2 && !el.getAttribute('role') && !el.getAttribute('aria-label')) {
+       return false;
+    }
+    return true;
+  });
+
+  if (!isEssential) return null;
+
+  const id = idCounter.next++;
+  
+  // 2. Determine a semantic ElementType for the AI
+  let type: ElementType = 'container';
+  if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName)) type = 'heading';
+  else if (['p', 'span', 'strong', 'em'].includes(tagName)) type = 'text';
+  else if (tagName === 'a') type = 'link';
+  else if (tagName === 'button') type = 'button';
+  else if (tagName === 'input') type = 'input';
+  else if (tagName === 'textarea') type = 'textarea';
+  else if (tagName === 'select') type = 'select';
+  else if (tagName === 'img') type = 'image';
+  else if (tagName === 'form') type = 'form';
+  else if (tagName === 'label') type = 'label';
+  
+  const name = await getElementName(element);
+  
+  // 3. Create a stable, unique locator by adding a temporary data-attribute
+  const locator = `[data-ai-id="${id}"]`;
+  await element.evaluate((el, id) => el.setAttribute('data-ai-id', String(id)), id);
+
+  const children: PageElement[] = [];
+  // Use '$$' which is a shortcut for querySelectorAll and returns ElementHandles
+  const childHandles = await element.$$(':scope > *');
+
+  for (const childHandle of childHandles) {
+    const childElement = await buildElementTree(page, childHandle, idCounter, id);
+    if (childElement) {
+      children.push(childElement);
+    }
+    // Dispose of handles to prevent memory leaks
+    childHandle.dispose();
+  }
+  
+  const pageElement: PageElement = { id, type, name, locator, children, parent: parentId };
+  return pageElement;
 }
 
 /**
- * Finds all interactive elements on the page that are visible.
+ * Traverses the page's DOM, builds a simplified tree of essential elements,
+ * and returns it as a JSON string for the AI to analyze.
  * @param page The Playwright page object.
- * @returns A promise that resolves to an array of interactive elements.
+ * @returns A promise that resolves to a JSON string representing the page context.
  */
-export async function getInteractiveElements(page: Page): Promise<InteractiveElement[]> {
-  const elements: InteractiveElement[] = [];
+export async function getPageContext(page: Page): Promise<string> {
+  // Clear any markers from previous analysis runs
+  await page.evaluate(() => {
+    document.querySelectorAll('[data-ai-id]').forEach(el => el.removeAttribute('data-ai-id'));
+  });
 
-  const selectors = [
-    'a',
-    'button',
-    '[role="button"]',
-    'input:not([type="hidden"])',
-    'textarea',
-    'select',
-  ];
-
-  for (const selector of selectors) {
-    const foundElements = await page.locator(selector).all();
-    for (const element of foundElements) {
-      if (await element.isVisible()) {
-        const tagName = await element.evaluate(el => el.tagName.toLowerCase());
-
-        // Ensure tagName is of the expected type, otherwise skip.
-        if (!['a', 'button', 'input', 'textarea', 'select'].includes(tagName)) {
-            continue;
-        }
-        const type = tagName as InteractiveElement['type'];
-        
-        const textContent = (await element.textContent())?.trim().replace(/\s+/g, ' ');
-        const ariaLabel = (await element.getAttribute('aria-label'))?.trim();
-        const placeholder = (await element.getAttribute('placeholder'))?.trim();
-        const nameAttr = (await element.getAttribute('name'))?.trim();
-        const idAttr = (await element.getAttribute('id'))?.trim();
-        const typeAttr = (await element.getAttribute('type'))?.trim();
-
-        const name = ariaLabel || textContent || placeholder || nameAttr || idAttr || null;
-        
-        let locator: string | null = null;
-        
-        if (idAttr) {
-            locator = `#${idAttr}`;
-        } else if (nameAttr) {
-            locator = `[name="${nameAttr}"]`;
-        } else if (ariaLabel) {
-            locator = `[aria-label="${ariaLabel}"]`;
-        } else if (placeholder) {
-            const sanitizedPlaceholder = placeholder.replace(/"/g, '\\"');
-            locator = `[placeholder="${sanitizedPlaceholder}"]`;
-        } else if (textContent && textContent.length > 0) {
-            const normalizedText = textContent.replace(/"/g, '\\"');
-            locator = `${type}:has-text("${normalizedText}")`;
-        } else if (typeAttr) {
-            locator = `${type}[type="${typeAttr}"]`;
-        }
-
-        if (locator) {
-          elements.push({
-            type,
-            name,
-            locator,
-          });
-        }
-      }
-    }
+  const body = await page.locator('body').elementHandle();
+  if (!body) {
+    return "The page has no body element.";
+  }
+  
+  const idCounter = { next: 1 };
+  const rootElement = await buildElementTree(page, body, idCounter);
+  body.dispose();
+  
+  if (!rootElement) {
+    return "Could not build the page element tree.";
   }
 
-  return elements;
+  // Convert the detailed tree to a simpler format for the AI prompt
+  const simplifiedTree = simplifyDomForAi(rootElement);
+
+  return JSON.stringify(simplifiedTree, null, 2);
 }
