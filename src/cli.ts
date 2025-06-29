@@ -2,18 +2,9 @@ import { chromium, Browser, Page } from 'playwright';
 import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
 import * as path from 'path';
-import { AiActionResponse, createAgentPrompt, nurieRequest, parseAiActionResponse, createReport } from './ai.service';
+import { AiActionResponse, createAgentPrompt, requestAiModel, parseAiActionResponse, createReport, AiModel } from './ai.service';
 import { getInteractiveElements } from './utils';
-
-export interface Action {
-  type: 'click' | 'type' | 'crawl' | 'finish' | 'generate_report' | 'keypress' | 'fill';
-  locator?: string;
-  value?: string;
-  description: string;
-  force?: boolean;
-  key?: string;
-  error?: string;
-}
+import { Action } from './types';
 
 interface ActionResult {
   success: boolean;
@@ -30,22 +21,31 @@ function getScenarioFromArgs(): string | null {
     return null;
 }
 
-async function runTest(targetUrl: string, testContext: string) {
+function getModelFromArgs(): AiModel {
+    const modelArg = process.argv.find(arg => arg.startsWith('--model='));
+    if (modelArg) {
+        const model = modelArg.split('=', 2)[1] as AiModel;
+        if (['gpt-4o', 'claude-3-opus', 'gemini-2.5-pro', 'nurie'].includes(model)) {
+            return model;
+        }
+        console.warn(`경고: 잘못된 모델이 지정되었습니다 (${model}). 기본 모델인 gpt-4o를 사용합니다.`);
+    }
+    return 'gpt-4o';
+}
+
+async function runTest(browser: Browser, targetUrl: string, testContext: string, model: AiModel) {
   console.log(`\n🎯 테스트 목표: ${testContext}`);
   const chatId = uuidv4();
   console.log(`🤝 새로운 대화 세션을 시작합니다. Chat ID: ${chatId}`);
 
   const actionHistory: Action[] = [];
-  let browser: Browser | null = null;
   let page: Page | null = null;
   const stateHistory: string[] = [];
   
   try {
-    browser = await chromium.launch({ headless: false });
     page = await browser.newPage();
     await page.goto(targetUrl);
     
-    // Initial wait might need adjustment or removal depending on general page load times.
     await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
 
     let step = 1;
@@ -98,7 +98,6 @@ async function runTest(targetUrl: string, testContext: string) {
         if (forcedAction) {
             aiActionResponse = { decision: 'act', reasoning: 'Forced action to break a loop.', action: forcedAction };
         }
-
       }
       
       if (!aiActionResponse) {
@@ -116,7 +115,7 @@ async function runTest(targetUrl: string, testContext: string) {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
           try {
             console.log(`🤖 AI에게 현재 상황에서 최선의 행동을 묻습니다... (시도 ${attempt}/${maxRetries})`);
-            const aiResponseData = await nurieRequest(prompt, chatId);
+            const aiResponseData = await requestAiModel(prompt, model, chatId);
             aiActionResponse = parseAiActionResponse(aiResponseData?.text);
             if (aiActionResponse) {
               break; 
@@ -194,13 +193,12 @@ async function runTest(targetUrl: string, testContext: string) {
     console.error('테스트 실행 중 심각한 오류 발생:', error);
   } finally {
     if (page) await page.close();
-    if (browser) await browser.close();
   }
 
   console.log('\n\n===== 최종 보고서 생성 =====');
   try {
     const reportPrompt = createReport(testContext, actionHistory);
-    const reportResponseData = await nurieRequest(reportPrompt, chatId);
+    const reportResponseData = await requestAiModel(reportPrompt, model, chatId);
     const reportContent = reportResponseData?.text || '보고서 생성에 실패했습니다. AI 응답이 비어있습니다.';
 
     const reportFileName = `QA-Report-${new Date().toISOString().replace(/:/g, '-')}.md`;
@@ -218,25 +216,33 @@ async function main() {
     process.exit(1);
   }
 
-  const singleScenario = getScenarioFromArgs();
+  const model = getModelFromArgs();
+  console.log(`🚀 AI 모델: ${model}`);
 
-  if (singleScenario) {
-    console.log('📝 커맨드라인 인수로 받은 단일 시나리오를 테스트합니다.');
-    await runTest(targetUrl, singleScenario);
-  } else if (fs.existsSync(scenariosFilePath)) {
-    console.log(`📝 ${scenariosFilePath} 파일에서 전체 시나리오를 읽어 테스트를 시작합니다.`);
-    const scenarios = fs.readFileSync(scenariosFilePath, 'utf-8')
-      .split('\n')
-      .map(s => s.trim().replace(/^\d+\.\s*/, '')) // 숫자와 점으로 시작하는 부분 제거
-      .filter(s => s.length > 0 && !s.startsWith('#') && !s.toLowerCase().includes('here are 10'));
+  const browser = await chromium.launch({ headless: false });
+  try {
+    const singleScenario = getScenarioFromArgs();
 
-    for (const scenario of scenarios) {
-      await runTest(targetUrl, scenario);
+    if (singleScenario) {
+      console.log('📝 커맨드라인 인수로 받은 단일 시나리오를 테스트합니다.');
+      await runTest(browser, targetUrl, singleScenario, model);
+    } else if (fs.existsSync(scenariosFilePath)) {
+      console.log(`📝 ${scenariosFilePath} 파일에서 전체 시나리오를 읽어 테스트를 시작합니다.`);
+      const scenarios = fs.readFileSync(scenariosFilePath, 'utf-8')
+        .split('\n')
+        .map(s => s.trim().replace(/^\d+\.\s*/, ''))
+        .filter(s => s.length > 0 && !s.startsWith('#') && !s.toLowerCase().includes('here are 10'));
+
+      for (const scenario of scenarios) {
+        await runTest(browser, targetUrl, scenario, model);
+      }
+      console.log('🎉 모든 테스트 시나리오 실행을 완료했습니다.');
+    } else {
+      console.error(`❌ 테스트 목표가 지정되지 않았습니다. ${scenariosFilePath} 파일을 생성하거나 --scenario 인수를 사용하세요.`);
+      process.exit(1);
     }
-    console.log('🎉 모든 테스트 시나리오 실행을 완료했습니다.');
-  } else {
-    console.error(`❌ 테스트 목표가 지정되지 않았습니다. ${scenariosFilePath} 파일을 생성하거나 --scenario 인수를 사용하세요.`);
-    process.exit(1);
+  } finally {
+    if (browser) await browser.close();
   }
 }
 
