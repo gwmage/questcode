@@ -219,26 +219,17 @@ async function main() {
   const model = getModelFromArgs();
   console.log(`🚀 AI 모델: ${model}`);
 
+  const scenariosFilePath = 'test-context.md'; // Use the new context file
+
   const browser = await chromium.launch({ headless: false });
   try {
-    const singleScenario = getScenarioFromArgs();
-
-    if (singleScenario) {
-      console.log('📝 커맨드라인 인수로 받은 단일 시나리오를 테스트합니다.');
-      await runTest(browser, targetUrl, singleScenario, model);
-    } else if (fs.existsSync(scenariosFilePath)) {
+    if (fs.existsSync(scenariosFilePath)) {
       console.log(`📝 ${scenariosFilePath} 파일에서 전체 시나리오를 읽어 테스트를 시작합니다.`);
-      const scenarios = fs.readFileSync(scenariosFilePath, 'utf-8')
-        .split('\n')
-        .map(s => s.trim().replace(/^\d+\.\s*/, ''))
-        .filter(s => s.length > 0 && !s.startsWith('#') && !s.toLowerCase().includes('here are 10'));
-
-      for (const scenario of scenarios) {
-        await runTest(browser, targetUrl, scenario, model);
-      }
+      const scenarioContent = fs.readFileSync(scenariosFilePath, 'utf-8');
+      await runTest(browser, targetUrl, scenarioContent, model);
       console.log('🎉 모든 테스트 시나리오 실행을 완료했습니다.');
     } else {
-      console.error(`❌ 테스트 목표가 지정되지 않았습니다. ${scenariosFilePath} 파일을 생성하거나 --scenario 인수를 사용하세요.`);
+      console.error(`❌ 시나리오 파일(${scenariosFilePath})을 찾을 수 없습니다.`);
       process.exit(1);
     }
   } finally {
