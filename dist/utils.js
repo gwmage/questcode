@@ -72,7 +72,16 @@ async function buildElementTree(page, element, idCounter, parentId) {
     if (!elementInfo)
         return null;
     const id = idCounter.next++;
-    const { tagName, name, html, isClickable } = elementInfo;
+    let { tagName, name, html, isClickable } = elementInfo; // 'name' is now mutable
+    // ** THE FIX **
+    // Get the real-time value for input, textarea, and select elements
+    if (['input', 'textarea', 'select'].includes(tagName)) {
+        const value = await element.inputValue();
+        if (value) {
+            // Prepend the current value to the name for the AI to see
+            name = `[${value}] | ${name}`;
+        }
+    }
     // 5. Determine a semantic ElementType for the AI
     let type = 'unknown';
     if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName))
@@ -100,14 +109,31 @@ async function buildElementTree(page, element, idCounter, parentId) {
     // 6. Create a stable, unique locator
     const locator = `[data-ai-id="${id}"]`;
     await element.evaluate((el, id) => el.setAttribute('data-ai-id', String(id)), id);
-    const children = [];
-    const childHandles = await element.$$(':scope > *');
-    for (const childHandle of childHandles) {
-        const childElement = await buildElementTree(page, childHandle, idCounter, id);
-        if (childElement) {
-            children.push(childElement);
+    // Securely check if the element is contenteditable
+    const isContentEditable = await element.evaluate(el => {
+        if (typeof el.isContentEditable === 'boolean') {
+            return el.isContentEditable;
         }
-        childHandle.dispose();
+        return false;
+    });
+    const children = [];
+    // If the element is editable (like a Tiptap editor),
+    // we treat it as a leaf node and don't process its children.
+    if (isContentEditable) {
+        if (type === 'container' || type === 'unknown') {
+            type = 'textarea'; // Treat contenteditable divs as textareas
+        }
+    }
+    else {
+        // Only process children if the element itself is not an editable block
+        const childHandles = await element.$$(':scope > *');
+        for (const childHandle of childHandles) {
+            const childElement = await buildElementTree(page, childHandle, idCounter, id);
+            if (childElement) {
+                children.push(childElement);
+            }
+            childHandle.dispose();
+        }
     }
     const pageElement = {
         id,

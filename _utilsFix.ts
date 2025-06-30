@@ -1,3 +1,7 @@
+const fs = require('fs');
+const path = require('path');
+
+const newContent = `
 import { Page, ElementHandle } from 'playwright';
 import { PageElement, ElementType } from './types';
 
@@ -104,7 +108,7 @@ export async function buildElementTree(
     const value = await element.inputValue();
     if (value) {
       // Prepend the current value to the name for the AI to see
-      name = `[${value}] | ${name}`;
+      name = \`[\${value}] | \${name}\`;
     }
   }
 
@@ -123,27 +127,21 @@ export async function buildElementTree(
   else if (['div', 'nav', 'main', 'footer', 'header', 'section'].includes(tagName)) type = 'container';
 
   // 6. Create a stable, unique locator
-  const locator = `[data-ai-id="${id}"]`;
+  const locator = \`[data-ai-id="\${id}"]\`;
   await element.evaluate((el, id) => el.setAttribute('data-ai-id', String(id)), id);
 
-  // Securely check if the element is contenteditable
-  const isContentEditable = await element.evaluate(el => {
-    if (typeof (el as HTMLElement).isContentEditable === 'boolean') {
-      return (el as HTMLElement).isContentEditable;
-    }
-    return false;
-  });
-
+  const isEditable = await element.isEditable();
   const children: PageElement[] = [];
 
-  // If the element is editable (like a Tiptap editor),
+  // If the element is editable (like an input or a Tiptap editor),
   // we treat it as a leaf node and don't process its children.
-  if (isContentEditable) {
+  // This prevents the AI from trying to interact with the inner text nodes.
+  if (isEditable) {
+    // Also, ensure its type is correctly identified for the AI
     if (type === 'container' || type === 'unknown') {
       type = 'textarea'; // Treat contenteditable divs as textareas
     }
   } else {
-    // Only process children if the element itself is not an editable block
     const childHandles = await element.$$(':scope > *');
     for (const childHandle of childHandles) {
       const childElement = await buildElementTree(page, childHandle, idCounter, id);
@@ -197,3 +195,11 @@ export async function getPageContext(page: Page): Promise<string> {
 
   return JSON.stringify(simplifiedTree, null, 2);
 }
+`;
+
+try {
+  fs.writeFileSync('_utilsFix.js', newContent, 'utf8');
+  console.log('Successfully created _utilsFix.js');
+} catch (error) {
+  console.error('Error writing _utilsFix.js:', error);
+} 

@@ -71,11 +71,14 @@ async function runTest(browser: Browser, targetUrl: string, testContext: string,
       console.log(`
 >>>>> [ 스텝 ${step} ] <<<<<`);
 
-      const pageUrl = page.url();
-      const pageTitle = await page.title();
-      
       console.log("👀 페이지의 현재 상태를 분석하여 AI에게 전달할 보고서를 생성합니다...");
       const pageContext = await getPageContext(page);
+
+      // 디버깅: 매 스텝의 pageContext를 파일로 저장
+      // fs.writeFileSync(`debug_page_context_step_${step}.json`, pageContext);
+      
+      const pageUrl = page.url();
+      const pageTitle = await page.title();
       
       const iaString = "{}";
 
@@ -141,14 +144,21 @@ async function runTest(browser: Browser, targetUrl: string, testContext: string,
         break;
       }
 
-      let result: ActionResult = { success: true };
-      
       console.log(`▶️  실행: ${action.description}`);
 
       try {
         switch (action.type) {
           case 'click':
-            await page.click(action.locator!, { force: action.force, timeout: 10000 });
+            try {
+              await page.click(action.locator!, { timeout: 10000 });
+            } catch (e: any) {
+              if (e.message.includes('intercepts pointer events')) {
+                console.log('다른 요소가 클릭을 가로막고 있어 force 옵션으로 재시도합니다.');
+                await page.click(action.locator!, { force: true, timeout: 10000 });
+              } else {
+                throw e; // 다른 종류의 에러는 다시 던집니다.
+              }
+            }
             break;
           case 'fill':
             await page.fill(action.locator!, action.value!);
@@ -160,27 +170,24 @@ async function runTest(browser: Browser, targetUrl: string, testContext: string,
             await page.press(action.locator!, action.key as any);
             break;
           case 'crawl':
-            await page.waitForTimeout(1000);
+            // crawl은 특별한 동작 없이 대기만 합니다.
             break;
         }
-
-        console.log('⏳ 페이지 상태가 안정되기를 기다립니다...');
-        await page.waitForLoadState('domcontentloaded', { timeout: 5000 });
-        
+        actionHistory.push(action);
       } catch (e: any) {
-        if (e.message.includes('timeout')) {
-          console.log('⏳ 페이지 로딩 시간이 초과되었지만, 계속 진행합니다.');
-        } else {
-          const sanitizedError = (e.message || 'Unknown error').replace(/[^\w\s.,:()]/g, '');
-          result = { success: false, error: sanitizedError };
-          console.error(`❌ 행동 '${action.description}' 실패: ${sanitizedError}`);
-        }
+        const sanitizedError = (e.message || 'Unknown error').replace(/[^\w\s.,:()]/g, '');
+        console.error(`❌ 행동 '${action.description}' 실패: ${sanitizedError}`);
+        action.error = sanitizedError;
+        actionHistory.push(action);
       }
-      
-      action.error = result.error;
-      actionHistory.push(action);
 
-      await page.waitForTimeout(2000);
+      // 모든 액션(성공 또는 실패) 후에 항상 페이지가 안정화될 시간을 줍니다.
+      console.log('⏳ 페이지 상태가 안정되기를 기다립니다...');
+      await page.waitForLoadState('domcontentloaded', { timeout: 5000 }).catch(() => {
+        console.log('⏳ DOMContentLoaded 대기 시간 초과, 계속 진행합니다.');
+      });
+      await page.waitForTimeout(2000); // 추가적인 안정화 시간
+      
       step++;
     }
 
