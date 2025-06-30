@@ -21,20 +21,27 @@ export class AuthService {
 
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
-    const authToken = uuidv4();
-
+    
     try {
+      // Create user and token in a transaction
       const user = await this.prisma.user.create({
         data: {
           username,
           password_hash: passwordHash,
-          auth_token: authToken,
+          tokens: {
+            create: {
+              token: uuidv4(),
+            },
+          },
+        },
+        include: {
+          tokens: true,
         },
       });
 
       return {
-        message: 'User created successfully.',
-        token: user.auth_token,
+        message: 'User and initial token created successfully.',
+        token: user.tokens[0].token,
       };
     } catch (error) {
       throw new InternalServerErrorException('Could not create user.');
@@ -58,9 +65,14 @@ export class AuthService {
       throw new ConflictException('Invalid credentials.');
     }
 
+    const tokens = await this.prisma.authToken.findMany({
+      where: { userId: user.id },
+      select: { token: true, createdAt: true },
+    });
+
     return {
       message: 'Login successful.',
-      token: user.auth_token,
+      tokens: tokens,
     };
   }
 } 

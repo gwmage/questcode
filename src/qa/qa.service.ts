@@ -1,29 +1,30 @@
 import { Injectable, ConflictException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateQaDto } from './dto/create-qa.dto';
-import { User } from '@prisma/client';
+import { AuthToken, User } from '@prisma/client';
 import { spawn } from 'child_process';
 import * as path from 'path';
+import * as fs from 'fs';
 
 @Injectable()
 export class QaService {
   constructor(private prisma: PrismaService) {}
 
-  async startNewJob(user: User, createQaDto: CreateQaDto) {
+  async startNewJob(user: User, authToken: AuthToken, createQaDto: CreateQaDto) {
     const runningJob = await this.prisma.qAJob.findFirst({
       where: {
-        userId: user.id,
+        authTokenId: authToken.id,
         status: 'running',
       },
     });
 
     if (runningJob) {
-      throw new ConflictException('An existing QA job is already in progress.');
+      throw new ConflictException('An existing QA job is already in progress for this token.');
     }
     
     const newJob = await this.prisma.qAJob.create({
       data: {
-        userId: user.id,
+        authTokenId: authToken.id,
         status: 'queued',
         target_url: createQaDto.url,
       },

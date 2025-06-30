@@ -12,13 +12,17 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     try {
-      const user = await this.prisma.user.findUnique({
-        where: { auth_token: token },
+      const authToken = await this.prisma.authToken.findUnique({
+        where: { token: token },
+        include: {
+          user: true,
+        },
       });
-      if (!user) {
+      if (!authToken) {
         throw new UnauthorizedException();
       }
-      request['user'] = user;
+      request['user'] = authToken.user;
+      request['authToken'] = authToken;
     } catch {
       throw new UnauthorizedException();
     }
