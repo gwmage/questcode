@@ -140,19 +140,22 @@ export async function requestAiModel(
 ): Promise<any> {
     switch (model) {
         case 'gpt-4o':
-            if (!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not set.');
+            if (!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not set for gpt-4o.');
             return gpt4oRequest(prompt, chatId);
         case 'claude-3-opus':
-            if (!process.env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY is not set.');
+            if (!process.env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY is not set for claude-3-opus.');
             return claude3OpusRequest(prompt, chatId);
         case 'gemini-2.5-pro':
-            if (!process.env.GOOGLE_API_KEY) throw new Error('GOOGLE_API_KEY is not set.');
+            if (!process.env.GOOGLE_API_KEY) throw new Error('GOOGLE_API_KEY is not set for gemini-2.5-pro.');
             return gemini2_5ProRequest(prompt, chatId);
         case 'nurie':
+            if (!process.env.NURIE_API_KEY || !process.env.NURIE_API) {
+                throw new Error('NURIE_API_KEY or NURIE_API is not set for nurie model.');
+            }
             return nurieRequest(prompt, chatId);
         default:
-            console.log(\`모델을 찾을 수 없습니다: \${model}. 기본 모델인 gpt-4o를 사용합니다.\`);
-            if (!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not set.');
+            console.warn(\`Unknown model: \${model}. Defaulting to gpt-4o.\`);
+            if (!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not set for default model gpt-4o.');
             return gpt4oRequest(prompt, chatId);
     }
 }
@@ -173,44 +176,21 @@ export function createAgentPrompt(
     promptTemplate = fs.readFileSync(path.join(__dirname, 'prompt.txt'), 'utf-8');
   }
 
-  const recentHistory = actionHistory.slice(-15);
+  const recentHistory = actionHistory.slice(-10); // Keep only the last 10 actions
 
-  const contextPrompt = testContext
-    ? \`
-[Your Goal]
-You have a specific mission. Analyze the user's request and the current screen to achieve the goal.
----
-\${testContext}
----
-\`
-    : \`[Your Goal]
-Your primary goal is to explore the given website URL, understand its structure, and test its functionalities.\`;
+  const historyString = recentHistory.length > 0 
+    ? recentHistory.map((a, i) => {
+        const stepNumber = actionHistory.length - recentHistory.length + i + 1;
+        return \`Step \${stepNumber}: \${a.description}\${a.error ? \` (Failed: \${a.error})\` : ''}\`;
+      }).join('\\n')
+    : "No actions taken yet.";
 
-  const historyPrompt = recentHistory.length > 0
-    ? \`
-[Action History]
-You have already performed these actions. Learn from them. Do not repeat the same action if it is not producing results.
----
-\${recentHistory.map((a, i) => \`Step \${actionHistory.length - recentHistory.length + i + 1}: \${a.description}\`).join('\\n')}
----
-\`
-    : '';
-
-  const stuckPrompt = isStuck
-    ? \`
-[IMPORTANT]
-You seem to be stuck in a loop repeating the same action. You MUST try a different action.
-\`
-    : '';
-  
-  let prompt = promptTemplate;
-  prompt = prompt.replace('{stuckPrompt}', stuckPrompt);
-  prompt = prompt.replace('{contextPrompt}', contextPrompt);
-  prompt = prompt.replace('{historyPrompt}', historyPrompt);
-  prompt = prompt.replace('{pageUrl}', pageUrl);
-  prompt = prompt.replace('{pageTitle}', pageTitle);
-  prompt = prompt.replace('{iaString}', iaString);
+  let prompt = promptTemplate!;
+  prompt = prompt.replace('{goal}', testContext);
+  prompt = prompt.replace('{url}', pageUrl);
+  prompt = prompt.replace('{title}', pageTitle);
   prompt = prompt.replace('{pageContext}', pageContext);
+  prompt = prompt.replace('{actionHistory}', historyString);
 
   return prompt;
 }
@@ -232,7 +212,7 @@ export function createReport(testContext: string, actionHistory: Action[]): stri
     })
     .join('\\n');
 
-  let prompt = reportPromptTemplate;
+  let prompt = reportPromptTemplate!;
   prompt = prompt.replace('{testContext}', testContext);
   prompt = prompt.replace('{actionHistory}', historyString);
   return prompt;
@@ -243,11 +223,11 @@ export function parseAiActionResponse(responseText: string): AiActionResponse {
     if (!responseText) {
       throw new Error('AI response text is empty or undefined.');
     }
-    const jsonMatch = responseText.match(/\\\`\\\`\\\`json([\\s\\S]*?)\\\`\\\`\\\`/);
+    const jsonMatch = responseText.match(/\\\`\\\`\\\`json\\s*([\\s\\S]*?)\\s*\\\`\\\`\\\`/);
     if (!jsonMatch || !jsonMatch[1]) {
-      return JSON.parse(responseText);
+      return JSON.parse(responseText) as AiActionResponse;
     };
-    return JSON.parse(jsonMatch[1]);
+    return JSON.parse(jsonMatch[1]) as AiActionResponse;
   } catch (e: any) {
     console.error("Failed to parse AI action response JSON. Error:", e, "Original Response:", responseText);
     throw new Error("Failed to parse AI action response.");

@@ -1,3 +1,4 @@
+
 import axios from 'axios';
 import { config } from 'dotenv';
 import { Action } from './types';
@@ -101,19 +102,22 @@ export async function requestAiModel(
 ): Promise<any> {
     switch (model) {
         case 'gpt-4o':
-            if (!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not set.');
+            if (!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not set for gpt-4o.');
             return gpt4oRequest(prompt, chatId);
         case 'claude-3-opus':
-            if (!process.env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY is not set.');
+            if (!process.env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY is not set for claude-3-opus.');
             return claude3OpusRequest(prompt, chatId);
         case 'gemini-2.5-pro':
-            if (!process.env.GOOGLE_API_KEY) throw new Error('GOOGLE_API_KEY is not set.');
+            if (!process.env.GOOGLE_API_KEY) throw new Error('GOOGLE_API_KEY is not set for gemini-2.5-pro.');
             return gemini2_5ProRequest(prompt, chatId);
         case 'nurie':
+            if (!process.env.NURIE_API_KEY || !process.env.NURIE_API) {
+                throw new Error('NURIE_API_KEY or NURIE_API is not set for nurie model.');
+            }
             return nurieRequest(prompt, chatId);
         default:
-            console.log(`모델을 찾을 수 없습니다: ${model}. 기본 모델인 gpt-4o를 사용합니다.`);
-            if (!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not set.');
+            console.warn(`Unknown model: ${model}. Defaulting to gpt-4o.`);
+            if (!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not set for default model gpt-4o.');
             return gpt4oRequest(prompt, chatId);
     }
 }
@@ -134,8 +138,13 @@ export function createAgentPrompt(
     promptTemplate = fs.readFileSync(path.join(__dirname, 'prompt.txt'), 'utf-8');
   }
 
-  const historyString = actionHistory.length > 0 
-    ? actionHistory.map((a, i) => `Step ${i + 1}: ${a.description}${a.error ? ` (Failed: ${a.error})` : ''}`).join('\n')
+  const recentHistory = actionHistory.slice(-10); // Keep only the last 10 actions
+
+  const historyString = recentHistory.length > 0 
+    ? recentHistory.map((a, i) => {
+        const stepNumber = actionHistory.length - recentHistory.length + i + 1;
+        return `Step ${stepNumber}: ${a.description}${a.error ? ` (Failed: ${a.error})` : ''}`;
+      }).join('\n')
     : "No actions taken yet.";
 
   let prompt = promptTemplate!;
@@ -176,7 +185,7 @@ export function parseAiActionResponse(responseText: string): AiActionResponse {
     if (!responseText) {
       throw new Error('AI response text is empty or undefined.');
     }
-    const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
+    const jsonMatch = responseText.match(/\`\`\`json\s*([\s\S]*?)\s*\`\`\`/);
     if (!jsonMatch || !jsonMatch[1]) {
       return JSON.parse(responseText) as AiActionResponse;
     };
