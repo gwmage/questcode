@@ -14,16 +14,24 @@ model User {
   id            Int      @id @default(autoincrement())
   username      String   @unique
   password_hash String
-  auth_token    String   @unique
-  jobs          QAJob[]
+  tokens        AuthToken[] // A user can have many auth tokens
+}
+
+model AuthToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  jobs      QAJob[]
+  createdAt DateTime @default(now())
 }
 
 model QAJob {
-  id           Int       @id @default(autoincrement())
-  user         User      @relation(fields: [userId], references: [id])
-  userId       Int
-  status       String
-  target_url   String    @db.Text
-  created_at   DateTime  @default(now())
-  completed_at DateTime?
+  id             Int       @id @default(autoincrement())
+  authToken      AuthToken @relation(fields: [authTokenId], references: [id])
+  authTokenId    Int
+  status         String
+  target_url     String    @db.Text
+  created_at     DateTime  @default(now())
+  completed_at   DateTime?
 } 
