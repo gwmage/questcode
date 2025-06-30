@@ -50,9 +50,9 @@ function getModelFromArgs(): AiModel {
         if (['gpt-4o', 'claude-3-opus', 'gemini-2.5-pro', 'nurie'].includes(model)) {
             return model;
         }
-        console.warn(`경고: 잘못된 모델이 지정되었습니다 (${model}). 기본 모델인 gpt-4o를 사용합니다.`);
+        console.warn(`경고: 잘못된 모델이 지정되었습니다 (${model}). 기본 모델인 nurie를 사용합니다.`);
     }
-    return 'gpt-4o';
+    return 'nurie';
 }
 
 function getLanguageFromArgs(): string {
