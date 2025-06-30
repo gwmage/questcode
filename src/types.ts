@@ -11,28 +11,27 @@ export type Action = {
   error?: string;
 } 
 
-export type ElementType = 
-  | 'container'
-  | 'form'
-  | 'section'
-  | 'heading'
-  | 'text'
-  | 'link'
+export type ElementType =
   | 'button'
+  | 'link'
   | 'input'
-  | 'textarea'
   | 'select'
-  | 'option'
+  | 'textarea'
+  | 'text'
+  | 'image'
+  | 'container'
+  | 'heading'
   | 'label'
-  | 'image';
+  | 'form'
+  | 'unknown';
 
 export interface PageElement {
   id: number;
   type: ElementType;
-  role?: string;
   name: string;
   locator: string;
-  value?: string;
+  html: string; // Add the outer HTML of the element
+  isClickable: boolean; // Explicitly mark if the element is deemed clickable
   children: PageElement[];
   parent?: number;
 } 

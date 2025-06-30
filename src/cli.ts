@@ -11,6 +11,19 @@ interface ActionResult {
   error?: string;
 }
 
+function getUrlFromArgs(): string | null {
+    const urlArg = process.argv.find(arg => arg.startsWith('--url='));
+    if (urlArg) {
+        return urlArg.split('=', 2)[1];
+    }
+    // Fallback for positional argument
+    const positionalArg = process.argv[2];
+    if (positionalArg && !positionalArg.startsWith('--')) {
+        return positionalArg;
+    }
+    return null;
+}
+
 const scenariosFilePath = path.join(__dirname, '..', 'test-scenarios.md');
 
 function getScenarioFromArgs(): string | null {
@@ -46,7 +59,12 @@ async function runTest(browser: Browser, targetUrl: string, testContext: string,
     page = await browser.newPage();
     await page.goto(targetUrl);
     
+    console.log('⏳ 페이지가 완전히 로드되고 상호작용 가능할 때까지 대기합니다...');
     await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
+    // "JS 비활성화" 경고 메시지가 사라질 때까지 기다려서 페이지가 상호작용 가능함을 확인합니다.
+    const noJsWarningLocator = page.locator("text=We're sorry but EPOSO doesn't work");
+    await noJsWarningLocator.waitFor({ state: 'hidden', timeout: 10000 });
+    console.log('✅ 페이지가 성공적으로 로드되었습니다.');
 
     let step = 1;
     while (step <= 100) {
@@ -187,9 +205,9 @@ async function runTest(browser: Browser, targetUrl: string, testContext: string,
 }
 
 async function main() {
-  const targetUrl = process.argv[2];
-  if (!targetUrl || targetUrl.startsWith('--')) {
-    console.error('Please provide a target URL as the first argument.');
+  const targetUrl = getUrlFromArgs();
+  if (!targetUrl) {
+    console.error('Please provide a target URL using --url=<URL> or as the first positional argument.');
     process.exit(1);
   }
 
@@ -198,6 +216,7 @@ async function main() {
 
   const scenariosFilePath = 'test-context.md'; // Use the new context file
 
+  // headless: false 로 설정해야 브라우저 창이 실제로 보입니다. 디버깅에 필수적입니다.
   const browser = await chromium.launch({ headless: false });
   try {
     if (fs.existsSync(scenariosFilePath)) {

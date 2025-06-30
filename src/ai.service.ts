@@ -134,44 +134,16 @@ export function createAgentPrompt(
     promptTemplate = fs.readFileSync(path.join(__dirname, 'prompt.txt'), 'utf-8');
   }
 
-  const recentHistory = actionHistory.slice(-15);
+  const historyString = actionHistory.length > 0 
+    ? actionHistory.map((a, i) => `Step ${i + 1}: ${a.description}${a.error ? ` (Failed: ${a.error})` : ''}`).join('\n')
+    : "No actions taken yet.";
 
-  const contextPrompt = testContext
-    ? `
-[Your Goal]
-You have a specific mission. Analyze the user's request and the current screen to achieve the goal.
----
-${testContext}
----
-`
-    : `[Your Goal]
-Your primary goal is to explore the given website URL, understand its structure, and test its functionalities.`;
-
-  const historyPrompt = recentHistory.length > 0
-    ? `
-[Action History]
-You have already performed these actions. Learn from them. Do not repeat the same action if it is not producing results.
----
-${recentHistory.map((a, i) => `Step ${actionHistory.length - recentHistory.length + i + 1}: ${a.description}`).join('\n')}
----
-`
-    : '';
-
-  const stuckPrompt = isStuck
-    ? `
-[IMPORTANT]
-You seem to be stuck in a loop repeating the same action. You MUST try a different action.
-`
-    : '';
-  
-  let prompt = promptTemplate;
-  prompt = prompt.replace('{stuckPrompt}', stuckPrompt);
-  prompt = prompt.replace('{contextPrompt}', contextPrompt);
-  prompt = prompt.replace('{historyPrompt}', historyPrompt);
-  prompt = prompt.replace('{pageUrl}', pageUrl);
-  prompt = prompt.replace('{pageTitle}', pageTitle);
-  prompt = prompt.replace('{iaString}', iaString);
+  let prompt = promptTemplate!;
+  prompt = prompt.replace('{goal}', testContext);
+  prompt = prompt.replace('{url}', pageUrl);
+  prompt = prompt.replace('{title}', pageTitle);
   prompt = prompt.replace('{pageContext}', pageContext);
+  prompt = prompt.replace('{actionHistory}', historyString);
 
   return prompt;
 }
@@ -193,12 +165,11 @@ export function createReport(testContext: string, actionHistory: Action[]): stri
     })
     .join('\n');
 
-  let prompt = reportPromptTemplate;
+  let prompt = reportPromptTemplate!;
   prompt = prompt.replace('{testContext}', testContext);
   prompt = prompt.replace('{actionHistory}', historyString);
   return prompt;
 }
-
 
 export function parseAiActionResponse(responseText: string): AiActionResponse {
   try {
@@ -207,7 +178,6 @@ export function parseAiActionResponse(responseText: string): AiActionResponse {
     }
     const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
     if (!jsonMatch || !jsonMatch[1]) {
-      // If no ```json block, try parsing the whole string directly
       return JSON.parse(responseText) as AiActionResponse;
     };
     return JSON.parse(jsonMatch[1]) as AiActionResponse;

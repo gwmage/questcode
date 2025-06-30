@@ -1,7 +1,7 @@
-import * as fs from 'fs';
-import * as path from 'path';
-
-const finalAiServiceContent = \`
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const finalAiServiceContent = ;
+`
 import axios from 'axios';
 import { config } from 'dotenv';
 import { Action } from './cli';
@@ -166,4 +166,4 @@ try {
     console.log('✅ Successfully wrote final report-aware brain to src/ai.service.ts');
 } catch (err) {
     console.error('❌ Error writing final report-aware brain:', err);
-} 
+} ;
