@@ -2,9 +2,10 @@ import { chromium, Browser, Page } from 'playwright';
 import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
 import * as path from 'path';
-import { AiActionResponse, createAgentPrompt, requestAiModel, parseAiActionResponse, createReport, AiModel } from './ai.service';
+import { AiActionResponse, createAgentPrompt, requestAiModel, parseAiActionResponse, createReport, AiModel, createRagExtractionPrompt } from './ai.service';
 import { getPageContext, buildElementTree } from './utils';
 import { Action } from './types';
+import axios from 'axios';
 
 interface ActionResult {
   success: boolean;
@@ -20,6 +21,14 @@ function getUrlFromArgs(): string | null {
     const positionalArg = process.argv[2];
     if (positionalArg && !positionalArg.startsWith('--')) {
         return positionalArg;
+    }
+    return null;
+}
+
+function getRagUrlFromArgs(): string | null {
+    const ragUrlArg = process.argv.find(arg => arg.startsWith('--rag-url='));
+    if (ragUrlArg) {
+        return ragUrlArg.split('=', 2)[1];
     }
     return null;
 }
@@ -58,8 +67,21 @@ function getLanguageFromArgs(): string {
     return 'en';
 }
 
-async function runTest(browser: Browser, targetUrl: string, testContext: string, model: AiModel, language: string) {
+async function fetchRagContent(url: string): Promise<string | null> {
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (error) {
+        console.error(`❌ RAG 문서 가져오기 실패: ${url}`, error);
+        return null;
+    }
+}
+
+async function runTest(browser: Browser, targetUrl: string, testContext: string, ragSnippets: string | null, model: AiModel, language: string) {
   console.log(`\n🎯 테스트 목표: ${testContext}`);
+  if (ragSnippets) {
+    console.log(`📚 추출된 참고 문서를 기반으로 테스트를 진행합니다.`);
+  }
   const chatId = uuidv4();
   console.log(`🤝 새로운 대화 세션을 시작합니다. Chat ID: ${chatId}`);
 
@@ -116,7 +138,8 @@ async function runTest(browser: Browser, targetUrl: string, testContext: string,
           pageContext,
           testContext,
           actionHistory,
-          isStuck
+          isStuck,
+          ragSnippets
         );
 
         const maxRetries = 3;
@@ -240,21 +263,48 @@ async function main() {
   console.log(`🌐 보고서 언어: ${language}`);
 
   const scenariosFilePath = 'test-context.md'; // Use the new context file
+  const testContext = fs.readFileSync(scenariosFilePath, 'utf-8');
+
+  let ragSnippets: string | null = null;
+  const ragUrl = getRagUrlFromArgs();
+  if (ragUrl) {
+    console.log(`📚 참고 문서 URL에서 내용을 가져옵니다: ${ragUrl}`);
+    const ragContent = await fetchRagContent(ragUrl);
+
+    if (ragContent) {
+      console.log(`🔍 테스트 목표와 관련된 정보를 문서에서 추출합니다...`);
+      const extractionPrompt = createRagExtractionPrompt(ragContent, testContext);
+      const extractionResponse = await requestAiModel(extractionPrompt, model, 'rag-extraction');
+      ragSnippets = extractionResponse?.text || null;
+      
+      if (ragSnippets && !ragSnippets.includes("No relevant information found")) {
+        console.log(`✅ 관련 정보 추출 완료.`);
+      } else {
+        ragSnippets = null;
+        console.warn(`⚠️ 문서에서 관련 정보를 추출하지 못했습니다.`);
+      }
+    }
+  }
 
   // headless: false 로 설정해야 브라우저 창이 실제로 보입니다. 디버깅에 필수적입니다.
   const browser = await chromium.launch({ headless: false });
   try {
     if (fs.existsSync(scenariosFilePath)) {
       console.log(`📝 ${scenariosFilePath} 파일에서 전체 시나리오를 읽어 테스트를 시작합니다.`);
-      const scenarioContent = fs.readFileSync(scenariosFilePath, 'utf-8');
-      await runTest(browser, targetUrl, scenarioContent, model, language);
-      console.log('🎉 모든 테스트 시나리오 실행을 완료했습니다.');
+      await runTest(browser, targetUrl, testContext, ragSnippets, model, language);
     } else {
-      console.error(`❌ 시나리오 파일(${scenariosFilePath})을 찾을 수 없습니다.`);
-      process.exit(1);
+      console.log(`➡️  단일 시나리오 모드로 테스트를 시작합니다.`);
+      const singleTestContext = getScenarioFromArgs();
+      if (!singleTestContext) {
+        console.error('오류: --scenario 인자가 제공되지 않았습니다. 시나리오를 제공해주세요.');
+        process.exit(1);
+      }
+      await runTest(browser, targetUrl, singleTestContext, ragSnippets, model, language);
     }
+  } catch (error) {
+    console.error('메인 프로세스에서 에러 발생:', error);
   } finally {
-    if (browser) await browser.close();
+    await browser.close();
   }
 }
 

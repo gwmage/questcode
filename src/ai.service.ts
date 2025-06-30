@@ -131,6 +131,7 @@ export function createAgentPrompt(
   testContext: string,
   actionHistory: Action[],
   isStuck: boolean,
+  ragSnippets: string | null
 ): string {
 
   if (!promptTemplate) {
@@ -150,6 +151,14 @@ export function createAgentPrompt(
   prompt = prompt.replace('{goal}', testContext);
   prompt = prompt.replace('{url}', pageUrl);
   prompt = prompt.replace('{title}', pageTitle);
+
+  if (ragSnippets) {
+    const ragSection = `Refer to the following information extracted from the reference document to guide your testing:\n<reference_info>\n${ragSnippets}\n</reference_info>`;
+    prompt = prompt.replace('{ragContext}', ragSection);
+  } else {
+    prompt = prompt.replace('{ragContext}', '');
+  }
+
   prompt = prompt.replace('{pageContext}', pageContext);
   prompt = prompt.replace('{actionHistory}', historyString);
 
@@ -184,6 +193,24 @@ export function createReport(testContext: string, actionHistory: Action[], langu
   prompt = prompt.replace('{actionHistory}', historyString);
   prompt = prompt.replace('{language}', fullLanguage);
   return prompt;
+}
+
+export function createRagExtractionPrompt(document: string, goal: string): string {
+    return `
+Based on the full document provided below, extract the most relevant sections, facts, or instructions that will help a QA agent achieve the given testing goal. Consolidate the key information into a concise summary.
+
+[Full Document]
+---
+${document}
+---
+
+[Testing Goal]
+---
+${goal}
+---
+
+Extract the key information relevant to the testing goal. If no part of the document is relevant, respond with "No relevant information found."
+`;
 }
 
 export function parseAiActionResponse(responseText: string): AiActionResponse {
