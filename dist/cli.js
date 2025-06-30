@@ -188,6 +188,9 @@ async function runTest(browser, targetUrl, testContext, model) {
     }
     console.log('\n\n===== 최종 보고서 생성 =====');
     try {
+        if (actionHistory.length === 0) {
+            actionHistory.push({ type: 'finish', description: '테스트 시작 실패', error: '초기 페이지 로딩에 실패하여 테스트를 시작할 수 없었습니다.' });
+        }
         const reportPrompt = (0, ai_service_1.createReport)(testContext, actionHistory);
         const reportResponseData = await (0, ai_service_1.requestAiModel)(reportPrompt, model, chatId);
         const reportContent = reportResponseData?.text || '보고서 생성에 실패했습니다. AI 응답이 비어있습니다.';

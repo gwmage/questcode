@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.buildElementTree = buildElementTree;
 exports.getPageContext = getPageContext;
 // This function is no longer simplifying as much, but renaming it would be a larger refactor.
 // It now passes most of the rich context to the AI.

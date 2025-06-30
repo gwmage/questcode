@@ -47,7 +47,7 @@ You can perform one of the following actions:
 2.  `fill(locator: string, value: string)`: Fills an input field.
 3.  `select(locator: string, value: string)`: Selects an option in a dropdown.
 4.  `keypress(locator: string, key: string)`: Sends a keypress to an element (e.g., 'Enter').
-5.  `finish()`: If you believe ALL objectives are complete or you are hopelessly stuck on the very first one.
+5.  `finish()`: **Use this action only as a last resort.** Only use `finish` if you have successfully completed all objectives, or if you have tried every single objective and cannot proceed with any of them. If you fail an objective, you MUST try the next one. Do not use `finish` if there are still untested objectives.
 
 [Response Format]
 You MUST respond in the following JSON format. Do not add any extra text or explanations outside the JSON structure.

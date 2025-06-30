@@ -29,7 +29,7 @@ function getElementName(element: ElementHandle): Promise<string> {
 }
 
 // Recursively builds a tree of PageElement objects from the DOM
-async function buildElementTree(
+export async function buildElementTree(
   page: Page,
   element: ElementHandle<HTMLElement | SVGElement>,
   idCounter: { next: number },

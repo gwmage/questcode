@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
 import * as path from 'path';
 import { AiActionResponse, createAgentPrompt, requestAiModel, parseAiActionResponse, createReport, AiModel } from './ai.service';
-import { getPageContext } from './utils';
+import { getPageContext, buildElementTree } from './utils';
 import { Action } from './types';
 
 interface ActionResult {
@@ -192,6 +192,9 @@ async function runTest(browser: Browser, targetUrl: string, testContext: string,
 
   console.log('\n\n===== 최종 보고서 생성 =====');
   try {
+    if (actionHistory.length === 0) {
+      actionHistory.push({ type: 'finish', description: '테스트 시작 실패', error: '초기 페이지 로딩에 실패하여 테스트를 시작할 수 없었습니다.' });
+    }
     const reportPrompt = createReport(testContext, actionHistory);
     const reportResponseData = await requestAiModel(reportPrompt, model, chatId);
     const reportContent = reportResponseData?.text || '보고서 생성에 실패했습니다. AI 응답이 비어있습니다.';
