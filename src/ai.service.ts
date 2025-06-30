@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 import { config } from 'dotenv';
 import { Action } from './types';
@@ -159,10 +158,16 @@ export function createAgentPrompt(
 
 let reportPromptTemplate: string | null = null;
 
-export function createReport(testContext: string, actionHistory: Action[]): string {
+export function createReport(testContext: string, actionHistory: Action[], language: string): string {
   if (!reportPromptTemplate) {
     reportPromptTemplate = fs.readFileSync(path.join(__dirname, 'report_prompt.txt'), 'utf-8');
   }
+
+  const langMap: { [key: string]: string } = {
+    en: 'English',
+    ko: 'Korean'
+  };
+  const fullLanguage = langMap[language] || 'English';
 
   const historyString = actionHistory
     .map((a, i) => {
@@ -177,6 +182,7 @@ export function createReport(testContext: string, actionHistory: Action[]): stri
   let prompt = reportPromptTemplate!;
   prompt = prompt.replace('{testContext}', testContext);
   prompt = prompt.replace('{actionHistory}', historyString);
+  prompt = prompt.replace('{language}', fullLanguage);
   return prompt;
 }
 

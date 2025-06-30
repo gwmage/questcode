@@ -54,3 +54,6 @@ Your task is to write a detailed QA report in Markdown format based on the provi
 ### Objective 3: Log out
 - **Status:** Skipped
 - **Reason:** Skipped because the critical 'Create a new project' step failed. 
+
+---
+**IMPORTANT: The entire final report must be written in {language}.** 

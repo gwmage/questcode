@@ -46,7 +46,19 @@ function getModelFromArgs(): AiModel {
     return 'gpt-4o';
 }
 
-async function runTest(browser: Browser, targetUrl: string, testContext: string, model: AiModel) {
+function getLanguageFromArgs(): string {
+    const langArg = process.argv.find(arg => arg.startsWith('--language='));
+    if (langArg) {
+        const lang = langArg.split('=', 2)[1];
+        if (['en', 'ko'].includes(lang)) {
+            return lang;
+        }
+        console.warn(`경고: 지원하지 않는 언어입니다 (${lang}). 기본 언어인 en(영어)를 사용합니다.`);
+    }
+    return 'en';
+}
+
+async function runTest(browser: Browser, targetUrl: string, testContext: string, model: AiModel, language: string) {
   console.log(`\n🎯 테스트 목표: ${testContext}`);
   const chatId = uuidv4();
   console.log(`🤝 새로운 대화 세션을 시작합니다. Chat ID: ${chatId}`);
@@ -202,7 +214,7 @@ async function runTest(browser: Browser, targetUrl: string, testContext: string,
     if (actionHistory.length === 0) {
       actionHistory.push({ type: 'finish', description: '테스트 시작 실패', error: '초기 페이지 로딩에 실패하여 테스트를 시작할 수 없었습니다.' });
     }
-    const reportPrompt = createReport(testContext, actionHistory);
+    const reportPrompt = createReport(testContext, actionHistory, language);
     const reportResponseData = await requestAiModel(reportPrompt, model, chatId);
     const reportContent = reportResponseData?.text || '보고서 생성에 실패했습니다. AI 응답이 비어있습니다.';
 
@@ -224,6 +236,9 @@ async function main() {
   const model = getModelFromArgs();
   console.log(`🚀 AI 모델: ${model}`);
 
+  const language = getLanguageFromArgs();
+  console.log(`🌐 보고서 언어: ${language}`);
+
   const scenariosFilePath = 'test-context.md'; // Use the new context file
 
   // headless: false 로 설정해야 브라우저 창이 실제로 보입니다. 디버깅에 필수적입니다.
@@ -232,7 +247,7 @@ async function main() {
     if (fs.existsSync(scenariosFilePath)) {
       console.log(`📝 ${scenariosFilePath} 파일에서 전체 시나리오를 읽어 테스트를 시작합니다.`);
       const scenarioContent = fs.readFileSync(scenariosFilePath, 'utf-8');
-      await runTest(browser, targetUrl, scenarioContent, model);
+      await runTest(browser, targetUrl, scenarioContent, model, language);
       console.log('🎉 모든 테스트 시나리오 실행을 완료했습니다.');
     } else {
       console.error(`❌ 시나리오 파일(${scenariosFilePath})을 찾을 수 없습니다.`);
